@@ -124,16 +124,16 @@ export function Hero() {
             overflow: 'hidden',
             position: 'relative',
             boxShadow: '0 8px 48px rgba(124,58,237,0.2), 0 2px 12px rgba(0,0,0,0.5)',
-            display: 'inline-block',
+            width: 340,
           }}>
             <img
               src={heroImg}
               alt="Murillo W. Kist"
               style={{
                 display: 'block',
-                maxWidth: 300,
                 width: '100%',
                 height: 'auto',
+                imageRendering: 'auto',
               }}
             />
             {/* Subtle gradient overlay */}
