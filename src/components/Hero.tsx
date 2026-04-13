@@ -94,56 +94,78 @@ export function Hero() {
 
       {/* Right: photo */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
         style={{ position: 'relative', zIndex: 1, flexShrink: 0, marginLeft: 60 }}
       >
-        {/* Pulsing glow */}
+        {/* Floating animation wrapper */}
         <motion.div
-          animate={{ scale: [1, 1.06, 1], opacity: [0.6, 1, 0.6] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            position: 'absolute', inset: -24,
-            background: 'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)',
-            borderRadius: '50%',
-          }}
-        />
-
-        <div style={{
-          width: 210, height: 210, borderRadius: 24,
-          border: '2px solid rgba(124,58,237,0.4)',
-          overflow: 'hidden', position: 'relative',
-          boxShadow: '0 0 50px rgba(124,58,237,0.18)',
-        }}>
-          <img
-            src={heroImg}
-            alt="Murillo W. Kist"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ position: 'relative' }}
+        >
+          {/* Outer glow ring */}
+          <motion.div
+            animate={{ opacity: [0.4, 0.9, 0.4], scale: [1, 1.04, 1] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute', inset: -16,
+              background: 'radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 65%)',
+              borderRadius: 28,
+              filter: 'blur(8px)',
+            }}
           />
-          {/* Subtle purple overlay */}
+
+          {/* Photo frame */}
           <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.05), transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-        </div>
+            borderRadius: 24,
+            border: '1.5px solid rgba(124,58,237,0.45)',
+            overflow: 'hidden',
+            position: 'relative',
+            boxShadow: '0 8px 48px rgba(124,58,237,0.2), 0 2px 12px rgba(0,0,0,0.5)',
+            display: 'inline-block',
+          }}>
+            <img
+              src={heroImg}
+              alt="Murillo W. Kist"
+              style={{
+                display: 'block',
+                maxWidth: 300,
+                width: '100%',
+                height: 'auto',
+              }}
+            />
+            {/* Subtle gradient overlay */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(160deg, rgba(124,58,237,0.06) 0%, transparent 50%, rgba(0,0,0,0.15) 100%)',
+              pointerEvents: 'none',
+            }} />
+          </div>
 
-        {/* Available badge */}
-        <div style={{
-          position: 'absolute', bottom: -12, right: -12,
-          background: 'var(--bg-card)', border: '1px solid rgba(124,58,237,0.25)',
-          borderRadius: 10, padding: '7px 12px',
-          display: 'flex', alignItems: 'center', gap: 6,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-        }}>
-          <motion.span
-            animate={{ opacity: [1, 0.4, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ width: 6, height: 6, background: 'var(--green-500)', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 8px var(--green-500)' }}
-          />
-          <span style={{ color: 'var(--text-secondary)', fontSize: 9 }}>{t.hero.available}</span>
-        </div>
+          {/* Available badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.9 }}
+            style={{
+              position: 'absolute', bottom: 16, right: -16,
+              background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(124,58,237,0.3)',
+              borderRadius: 10, padding: '7px 12px',
+              display: 'flex', alignItems: 'center', gap: 6,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <motion.span
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 6, height: 6, background: 'var(--green-500)', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 8px var(--green-500)' }}
+            />
+            <span style={{ color: 'var(--text-secondary)', fontSize: 10, fontWeight: 500, whiteSpace: 'nowrap' }}>{t.hero.available}</span>
+          </motion.div>
+        </motion.div>
       </motion.div>
     </section>
   )
