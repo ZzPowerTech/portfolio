@@ -327,7 +327,9 @@
   margin-top: 12px;
   padding: 9px 12px;
   border-radius: 8px;
-  background: var(--indigo);
+  /* A touch deeper than --indigo: reads calmer on the card, and white text passes WCAG AA
+     at 13px (5.9:1; --indigo is 4.5:1). */
+  background: #5550dc;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
