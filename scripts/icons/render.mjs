@@ -5,9 +5,9 @@
 // Writes public/favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180),
 // icon-192.png, icon-512.png, icon-maskable-512.png. Needs Playwright with Chromium.
 //
-// The mark: a geometric "M" over the site's lit horizon. The lower-right corner of the
-// right leg is cut in a step and filled in violet, the same stepped cut as the avatar frame
-// in the hero; at 16 px it reads as a violet accent at the foot of the M.
+// The mark: a geometric "M" over the site's lit horizon, its right leg cut away and
+// rendered as a separate violet piece (the cut-out motif of the hero's avatar frame); at
+// 16 px it reads as a white-and-violet M.
 
 import { createRequire } from 'node:module'
 import { writeFileSync } from 'node:fs'
@@ -18,7 +18,11 @@ const require = createRequire(import.meta.url)
 const { chromium } = require('playwright')
 const pub = resolve(dirname(fileURLToPath(import.meta.url)), '../../public')
 
-const M = 'M13.5 44V15H23l9 14.5L41 15h9.5v20H45v9h-4V30l-6.6 10.5h-4.8L23 30v14z'
+// The M is split by a vertical cut: the left leg and both diagonals in white (clipped at
+// x = 39.4), and the whole right leg as a separate violet piece (x 41-50.5), the "cut-out"
+// motif of the hero's avatar frame.
+const M_WHITE = 'M13.5 44V15H23l9 14.5L39.4 17.58V32.55L34.4 40.5h-4.8L23 30v14z'
+const M_RIGHT = '<rect x="41" y="15" width="9.5" height="29" rx="1.2" fill="#a78bfa"/>'
 
 /** rounded: the 14px-radius tile (tabs, Android "any"); full bleed for iOS and maskable. */
 function svg({ rounded }) {
@@ -33,8 +37,8 @@ function svg({ rounded }) {
     <rect width="64" height="64" fill="url(#g)"/>
     <ellipse cx="32" cy="92" rx="56" ry="42" fill="#04050d" stroke="#ddd6fe" stroke-width="2.2"/>
   </g>
-  <path d="${M}" fill="#f8fafc"/>
-  <rect x="46.4" y="36.4" width="4.1" height="7.6" rx="1" fill="#a78bfa"/>
+  <path d="${M_WHITE}" fill="#f8fafc"/>
+  ${M_RIGHT}
 </svg>
 `
 }

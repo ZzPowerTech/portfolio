@@ -8,6 +8,6 @@
     <rect width="64" height="64" fill="url(#g)"/>
     <ellipse cx="32" cy="92" rx="56" ry="42" fill="#04050d" stroke="#ddd6fe" stroke-width="2.2"/>
   </g>
-  <path d="M13.5 44V15H23l9 14.5L41 15h9.5v20H45v9h-4V30l-6.6 10.5h-4.8L23 30v14z" fill="#f8fafc"/>
-  <rect x="46.4" y="36.4" width="4.1" height="7.6" rx="1" fill="#a78bfa"/>
+  <path d="M13.5 44V15H23l9 14.5L39.4 17.58V32.55L34.4 40.5h-4.8L23 30v14z" fill="#f8fafc"/>
+  <rect x="41" y="15" width="9.5" height="29" rx="1.2" fill="#a78bfa"/>
 </svg>
