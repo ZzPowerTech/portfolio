@@ -81,9 +81,13 @@ body {
 }
 
 /*
- * Dither film over the whole page: a zero-mean grey noise tile (127.5 +- 2.5) blended with
- * overlay breaks 8-bit banding in every gradient by about one level. It covers the page
- * edge to edge on purpose: any layer that stops somewhere leaves a step where it stops.
+ * Dither film over the whole page. A 128px blue-noise tile of white and black pixels at
+ * alpha 0-3/255 adds or removes about one 8-bit level per pixel, whatever the brightness
+ * underneath, which breaks the banding of dark gradients (an overlay blend can't: it scales
+ * the noise by the backdrop, so it fades out exactly in the dark tones that band most).
+ * Blue noise (no low frequencies) reads as finer grain than white noise at the same strength.
+ * It covers the page edge to edge on purpose: its small average lift is then uniform, and a
+ * layer that stopped somewhere would leave a step where it stops.
  */
 body::after {
   content: "";
@@ -92,8 +96,20 @@ body::after {
   z-index: 2147483647;
   pointer-events: none;
   background: url("./assets/dither.png") repeat;
-  background-size: 64px 64px;
-  mix-blend-mode: overlay;
+  background-size: 128px 128px;
+}
+
+/* One noise texel per device pixel on dense screens (an upscaled tile would read as coarse grain). */
+@media (min-resolution: 1.5dppx) {
+  body::after { background-size: 85.333px 85.333px; }
+}
+
+@media (min-resolution: 2dppx) {
+  body::after { background-size: 64px 64px; }
+}
+
+@media (min-resolution: 3dppx) {
+  body::after { background-size: 42.667px 42.667px; }
 }
 
 #root {
