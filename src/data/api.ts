@@ -3,6 +3,7 @@
 // publishes under /v1/ (see scripts/prerender.mjs). Keep facts in sync with
 // src/data/projects.ts, index.html (JSON-LD) and public/llms.txt.
 import type { Language } from './translations'
+import hero720 from '../assets/hero-720.webp'
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json }
 
@@ -14,7 +15,12 @@ export interface Endpoint {
 
 export const SITE_URL = 'https://portfolio.weissmurillo.de'
 export const API_BASE = `${SITE_URL}/v1`
-export const AVATAR_URL = `${SITE_URL}/murillo.webp`
+// public/murillo.webp is the same file as src/assets/hero-720.webp (a test enforces it).
+// Vite names that asset after its content hash; reusing the hash as ?v= keeps the public
+// URL readable and changes it whenever the photo changes, so no cache serves a stale one.
+// (In dev and tests the import has no hash, and the URL has no version.)
+const AVATAR_VERSION = /-([\w-]{8})\.webp$/.exec(hero720)?.[1]
+export const AVATAR_URL = `${SITE_URL}/murillo.webp${AVATAR_VERSION ? `?v=${AVATAR_VERSION}` : ''}`
 
 const LINKS = {
   github: 'https://github.com/ZzPowerTech',
