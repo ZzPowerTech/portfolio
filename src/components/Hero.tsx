@@ -4,12 +4,16 @@ import avatar from '../assets/hero-avatar.webp'
 import cvUrl from '../assets/curriculum/Curriculo_Murilo_Weiss_Kist_Ultra_Profissional.pdf?url'
 import { useLanguage } from '../contexts/LanguageContext'
 import { ApiConsole } from './ApiConsole'
+import { useRef } from 'react'
+import { useHeroLight } from './heroLight/useHeroLight'
 
 export function Hero() {
   const { t } = useLanguage()
+  const heroRef = useRef<HTMLElement>(null)
+  useHeroLight(heroRef)
 
   return (
-    <section id="top" className="hero" aria-labelledby="hero-title">
+    <section ref={heroRef} id="top" className="hero" aria-labelledby="hero-title">
       <a className="hero-pill" href="#about">
         <img src={avatar} alt="" width={28} height={28} />
         <span><b>Murillo Weiss Kist</b> · {t.hero.pill}</span>
