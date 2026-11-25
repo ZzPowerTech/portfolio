@@ -23,6 +23,8 @@
   --amber-500: #f59e0b;
   --border-subtle: #1e293b;
   --border-purple: rgba(124, 58, 237, 0.25);
+  --scroll-thumb: rgba(167, 139, 250, 0.32);
+  --scroll-thumb-hover: rgba(167, 139, 250, 0.6);
   --gutter: 80px;
 }
 
@@ -36,6 +38,34 @@
 
 html {
   scroll-behavior: smooth;
+  /* Standard scrollbar styling (Chrome 121+, Firefox). */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--bg-base);
+}
+
+/* Safari and older Chromium, which only understand the ::-webkit-scrollbar pseudo-elements. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border: 2px solid var(--bg-base);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.45);
+  color: #fff;
 }
 
 body {
@@ -63,20 +93,122 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--purple-500);
+  outline: 2px solid var(--violet);
   outline-offset: 2px;
 }
 
 /* ---------- Layout ---------- */
 
 .site-header {
-  padding: 14px 48px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: rgba(4, 5, 13, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-logo {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.5px;
 }
 
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 22px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
+.lang-toggle {
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-primary);
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang-toggle:hover {
+  border-color: rgba(167, 139, 250, 0.5);
+}
+
+/* Mobile menu: hidden on desktop, where every section link is in the nav. */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--text-primary);
+  transition: transform 0.2s;
+}
+
+.menu-toggle.is-open span:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.menu-toggle.is-open span:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  padding: 8px 16px 16px;
+  /* Solid: a backdrop-filter nested inside the blurred header has no effect. */
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 24px 48px rgba(4, 5, 13, 0.7);
+}
+
+.mobile-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.mobile-menu a:last-child {
+  border-bottom: 0;
 }
 
 .section {
@@ -117,49 +249,10 @@ button {
   text-align: center;
 }
 
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.grid-featured {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 16px;
-}
-
-.about-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 48px;
-}
-
-.site-footer {
-  padding: 40px var(--gutter);
-  border-top: 1px solid rgba(124, 58, 237, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
 @media (max-width: 1024px) {
   :root {
     --gutter: 40px;
   }
-
-  .grid-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .grid-featured,
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-
-
 }
 
 @media (max-width: 720px) {
@@ -172,11 +265,19 @@ button {
   }
 
   .site-nav {
-    gap: 14px;
+    gap: 16px;
   }
 
   .nav-optional {
     display: none !important;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .mobile-menu:not([hidden]) {
+    display: grid;
   }
 
   .section {
@@ -186,14 +287,6 @@ button {
   .section-title {
     font-size: 26px;
   }
-
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-
-
-
-
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,14 +4,6 @@ import { LanguageProvider } from '../../contexts/LanguageContext'
 import { REPOS } from '../../data/repos'
 import { Repos } from '../Repos'
 
-vi.mock('framer-motion', () => ({
-  motion: {
-    section: ({ children, ...p }: React.HTMLAttributes<HTMLElement>) => <section {...p}>{children}</section>,
-    a: ({ children, ...p }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...p}>{children}</a>,
-    div: ({ children, ...p }: React.HTMLAttributes<HTMLDivElement>) => <div {...p}>{children}</div>,
-  },
-}))
-
 function Wrapper({ children }: { children: React.ReactNode }) {
   return <LanguageProvider>{children}</LanguageProvider>
 }

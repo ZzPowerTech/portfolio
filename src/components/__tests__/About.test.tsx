@@ -15,8 +15,10 @@ describe('About', () => {
     expect(screen.getAllByText('jun/2025 – out/2026').length).toBeGreaterThan(0)
   })
 
-  it('lists Spring Boot among technologies', () => {
+  it('groups technologies, with Spring Boot under Backend', () => {
     render(<About />, { wrapper: Wrapper })
+    expect(screen.getByText('Backend')).toBeInTheDocument()
     expect(screen.getByText('Spring Boot')).toBeInTheDocument()
+    expect(screen.getByText('Dados e infra')).toBeInTheDocument()
   })
 })
