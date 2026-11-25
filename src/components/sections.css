@@ -205,9 +205,11 @@
   border: 1px solid var(--line-2);
   border-radius: 20px;
   background:
-    radial-gradient(80% 90% at 100% 50%, rgba(99, 102, 241, 0.14), transparent 70%),
+    radial-gradient(80% 90% at 100% 50%, rgba(99, 102, 241, 0.140) 0.0%, rgba(99, 102, 241, 0.131) 12.5%, rgba(99, 102, 241, 0.108) 25.0%, rgba(99, 102, 241, 0.079) 37.5%, rgba(99, 102, 241, 0.050) 50.0%, rgba(99, 102, 241, 0.027) 62.5%, rgba(99, 102, 241, 0.012) 75.0%, rgba(99, 102, 241, 0.004) 87.5%, rgba(99, 102, 241, 0.000) 100.0%),
     linear-gradient(180deg, var(--panel-2), var(--panel));
 }
+
+
 
 .feature-name {
   font-size: clamp(30px, 3.4vw, 40px);
@@ -269,7 +271,8 @@
   border-radius: 14px;
   background: #0a0e1f;
   padding: 18px;
-  box-shadow: 0 24px 60px rgba(4, 5, 13, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  /* No large drop shadow: Chrome renders big blurs at reduced resolution (blocky halo). */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 
 .invoice-head {
@@ -451,7 +454,10 @@
 .site-footer {
   padding: 96px var(--gutter) 40px;
   border-top: 1px solid var(--line);
-  background: radial-gradient(50% 60% at 50% 0%, rgba(99, 102, 241, 0.14), transparent 70%);
+  /* Glow sits inside the footer and reaches zero before its top edge: no step at the border. */
+  background:
+    radial-gradient(46% 34% at 50% 34%, rgba(99, 102, 241, 0.160) 0.0%, rgba(99, 102, 241, 0.150) 12.5%, rgba(99, 102, 241, 0.124) 25.0%, rgba(99, 102, 241, 0.090) 37.5%, rgba(99, 102, 241, 0.057) 50.0%, rgba(99, 102, 241, 0.031) 62.5%, rgba(99, 102, 241, 0.014) 75.0%, rgba(99, 102, 241, 0.005) 87.5%, rgba(99, 102, 241, 0.000) 100.0%),
+    var(--bg-base);
 }
 
 .contact {
