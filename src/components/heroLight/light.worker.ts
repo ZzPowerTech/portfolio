@@ -25,7 +25,7 @@ export type ToWorker =
 export type FromWorker =
   | { type: 'ready' }
   | { type: 'fail'; reason: string }
-  | { type: 'stats'; fps: number; gpuMs: number | null }
+  | { type: 'stats'; fps: number; gpuMs: number | null; frameMs: number | null; renderer: string }
 
 type Ctx = {
   gl: WebGL2RenderingContext
@@ -50,7 +50,18 @@ let clock = 0          // seconds of motion shown so far (pauses don't jump)
 let last = 0
 let readySent = false
 
-// Optional GPU timing (?lightstats): EXT_disjoint_timer_query_webgl2.
+// Optional diagnostics (?lightstats).
+// - gpuMs: GPU time from EXT_disjoint_timer_query_webgl2. Chrome hides this extension by
+//   default (timing-attack mitigation), so it is usually unavailable.
+// - frameMs: wall time to draw a frame and wait for the GPU to finish it (a 1-pixel
+//   readPixels forces completion). An upper bound on the GPU cost; sampled every 30 frames
+//   so the forced sync doesn't disturb the loop.
+// - renderer: the GPU the browser gave WebGL (WEBGL_debug_renderer_info), or "SwiftShader"
+//   style names when it fell back to software rendering.
+let renderer = ''
+let frameSum = 0
+let frameN = 0
+const pixel = new Uint8Array(4)
 let timer: { ext: { TIME_ELAPSED_EXT: number; GPU_DISJOINT_EXT: number }; pending: WebGLQuery[] } | null = null
 let statsOn = false
 let statFrames = 0
@@ -85,6 +96,8 @@ function setup(canvas: OffscreenCanvas, stats: boolean): Ctx | null {
   if (stats) {
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
     if (ext) timer = { ext, pending: [] }
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info')
+    renderer = String(gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER))
   }
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault()
@@ -156,13 +169,27 @@ function frame(now: number) {
   frameId = 0
   if (last) clock += Math.min(0.1, (now - last) / 1000)
   last = now
-  draw(clock)
+  if (statsOn && ctx && statFrames % 30 === 0) {
+    const t0 = performance.now()
+    draw(clock)
+    ctx.gl.readPixels(0, 0, 1, 1, ctx.gl.RGBA, ctx.gl.UNSIGNED_BYTE, pixel)
+    frameSum += performance.now() - t0
+    frameN++
+  } else {
+    draw(clock)
+  }
   if (statsOn) {
     statFrames++
     if (!statStart) statStart = now
     if (now - statStart >= 1000) {
-      post({ type: 'stats', fps: (statFrames * 1000) / (now - statStart), gpuMs: gpuN ? gpuSum / gpuN : null })
-      statFrames = 0; statStart = now; gpuSum = 0; gpuN = 0
+      post({
+        type: 'stats',
+        fps: (statFrames * 1000) / (now - statStart),
+        gpuMs: gpuN ? gpuSum / gpuN : null,
+        frameMs: frameN ? frameSum / frameN : null,
+        renderer,
+      })
+      statFrames = 0; statStart = now; gpuSum = 0; gpuN = 0; frameSum = 0; frameN = 0
     }
   }
   schedule()

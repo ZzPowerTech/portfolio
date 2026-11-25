@@ -64,13 +64,13 @@ void main() {
   vec3 col = BG;
 
   // 1. Ambient glows (hero::before). CSS lists them top-first, so paint 3, 2, 1.
-  // Each glow drifts on its own slow Lissajous path (periods ~20-60s) and swells +-20%.
-  vec2 d1 = env * vec2(sin(t * 0.21) * 70.0, sin(t * 0.17) * 26.0);
-  vec2 d2 = env * vec2(sin(t * 0.13) * 90.0, sin(t * 0.23) * 32.0);
-  vec2 d3 = env * vec2(sin(t * 0.19) * -80.0, sin(t * 0.11) * 28.0);
-  col = over(col, PERIWINKLE, 0.14 * (1.0 + env * 0.22 * sin(t * 0.29)) * fall(ell(p, uAmb3 + vec4(d3, 0.0, 0.0)), 2.2));
-  col = over(col, VIOLET,     0.24 * (1.0 + env * 0.20 * sin(t * 0.23 + 1.0)) * fall(ell(p, uAmb2 + vec4(d2, 0.0, 0.0)), 2.2));
-  col = over(col, INDIGO,     0.34 * (1.0 + env * 0.16 * sin(t * 0.37)) * fall(ell(p, uAmb1 + vec4(d1, 0.0, 0.0)), 2.2));
+  // Each glow drifts on its own slow Lissajous path (periods ~20-60s) and swells +-30%.
+  vec2 d1 = env * vec2(sin(t * 0.21) * 120.0, sin(t * 0.17) * 44.0);
+  vec2 d2 = env * vec2(sin(t * 0.13) * 150.0, sin(t * 0.23) * 54.0);
+  vec2 d3 = env * vec2(sin(t * 0.19) * -135.0, sin(t * 0.11) * 48.0);
+  col = over(col, PERIWINKLE, 0.14 * (1.0 + env * 0.34 * sin(t * 0.29)) * fall(ell(p, uAmb3 + vec4(d3, 0.0, 0.0)), 2.2));
+  col = over(col, VIOLET,     0.24 * (1.0 + env * 0.32 * sin(t * 0.23 + 1.0)) * fall(ell(p, uAmb2 + vec4(d2, 0.0, 0.0)), 2.2));
+  col = over(col, INDIGO,     0.34 * (1.0 + env * 0.26 * sin(t * 0.37)) * fall(ell(p, uAmb1 + vec4(d1, 0.0, 0.0)), 2.2));
 
   // 2. Horizon atmosphere: light outside the planet's edge, on an ellipse 1.3x its size.
   float r = ell(p, uPlanet);
@@ -81,7 +81,7 @@ void main() {
     float tx = (p.x - uWrap.x) / uWrap.y;
     float side = smoothstep(0.0, 0.4, tx) * (1.0 - smoothstep(0.6, 1.0, tx));
     // A slow sweep of light travels along the rim, left to right (~20s per pass).
-    float sweep = 1.0 + env * 0.38 * sin(tx * 6.2832 - t * 0.31);
+    float sweep = 1.0 + env * 0.58 * sin(tx * 6.2832 - t * 0.31);
     float w = (u - RIM) / (1.0 - RIM);
     // As in CSS, the layers form one group (premultiplied) and the side mask applies to it.
     vec4 g = vec4(0.0);
@@ -96,12 +96,12 @@ void main() {
 
   // 3. Console halo (.hero-stage::after): it breathes, ~9s period.
   float rh = ell(p, uHalo);
-  float breathe = 1.0 + env * 0.18 * sin(t * 0.7);
+  float breathe = 1.0 + env * 0.30 * sin(t * 0.7);
   col = over(col, VIOLET, 0.09 * breathe * plateau(rh, 0.24, 2.8));
   col = over(col, INDIGO, 0.32 * breathe * plateau(rh, 0.28, 2.2));
 
   // 4. Light under the console (.hero-continue::before).
-  col = over(col, INDIGO, 0.26 * (1.0 + env * 0.15 * sin(t * 0.7 + 0.6)) * fall(ell(p, uSpill), 2.0));
+  col = over(col, INDIGO, 0.26 * (1.0 + env * 0.25 * sin(t * 0.7 + 0.6)) * fall(ell(p, uSpill), 2.0));
 
   // Dither in float, before the 8-bit write.
   vec2 q = gl_FragCoord.xy;

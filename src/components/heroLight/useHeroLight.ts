@@ -107,7 +107,11 @@ export function useHeroLight(heroRef: RefObject<HTMLElement | null>) {
           statsEl.className = 'hero-light-stats'
           document.body.append(statsEl)
         }
-        statsEl.textContent = `light ${msg.fps.toFixed(0)} fps · GPU ${msg.gpuMs === null ? 'n/a' : msg.gpuMs.toFixed(2) + ' ms'}`
+        const ms = (v: number | null) => (v === null ? '–' : v.toFixed(2) + ' ms')
+        statsEl.textContent =
+          `light ${msg.fps.toFixed(0)} fps · quadro ≤ ${ms(msg.frameMs)}` +
+          (msg.gpuMs === null ? '' : ` · GPU ${ms(msg.gpuMs)}`) +
+          ` · ${msg.renderer || 'renderer oculto'}`
       }
     }
     worker.onerror = fallback
