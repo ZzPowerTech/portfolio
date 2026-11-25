@@ -33,6 +33,7 @@ uniform vec4 uSpill;    // light under the console: centre.xy, radii.xy
 
 out vec4 outColor;
 
+const float DITHER = 1.0;   // triangular dither amplitude, in 8-bit levels
 const vec3 BG         = vec3(4.0, 5.0, 13.0) / 255.0;
 const vec3 INDIGO     = vec3(99.0, 102.0, 241.0) / 255.0;
 const vec3 VIOLET     = vec3(167.0, 139.0, 250.0) / 255.0;
@@ -64,13 +65,13 @@ void main() {
   vec3 col = BG;
 
   // 1. Ambient glows (hero::before). CSS lists them top-first, so paint 3, 2, 1.
-  // Each glow drifts on its own slow Lissajous path (periods ~20-60s) and swells +-30%.
-  vec2 d1 = env * vec2(sin(t * 0.21) * 120.0, sin(t * 0.17) * 44.0);
-  vec2 d2 = env * vec2(sin(t * 0.13) * 150.0, sin(t * 0.23) * 54.0);
-  vec2 d3 = env * vec2(sin(t * 0.19) * -135.0, sin(t * 0.11) * 48.0);
-  col = over(col, PERIWINKLE, 0.14 * (1.0 + env * 0.34 * sin(t * 0.29)) * fall(ell(p, uAmb3 + vec4(d3, 0.0, 0.0)), 2.2));
-  col = over(col, VIOLET,     0.24 * (1.0 + env * 0.32 * sin(t * 0.23 + 1.0)) * fall(ell(p, uAmb2 + vec4(d2, 0.0, 0.0)), 2.2));
-  col = over(col, INDIGO,     0.34 * (1.0 + env * 0.26 * sin(t * 0.37)) * fall(ell(p, uAmb1 + vec4(d1, 0.0, 0.0)), 2.2));
+  // Each glow drifts on its own Lissajous path (periods ~12-30s) and swells +-45-55%.
+  vec2 d1 = env * vec2(sin(t * 0.34) * 260.0, sin(t * 0.27) * 90.0);
+  vec2 d2 = env * vec2(sin(t * 0.21) * 300.0, sin(t * 0.37) * 100.0);
+  vec2 d3 = env * vec2(sin(t * 0.30) * -280.0, sin(t * 0.18) * 95.0);
+  col = over(col, PERIWINKLE, 0.14 * (1.0 + env * 0.55 * sin(t * 0.46)) * fall(ell(p, uAmb3 + vec4(d3, 0.0, 0.0)), 2.2));
+  col = over(col, VIOLET,     0.24 * (1.0 + env * 0.50 * sin(t * 0.37 + 1.0)) * fall(ell(p, uAmb2 + vec4(d2, 0.0, 0.0)), 2.2));
+  col = over(col, INDIGO,     0.34 * (1.0 + env * 0.45 * sin(t * 0.59)) * fall(ell(p, uAmb1 + vec4(d1, 0.0, 0.0)), 2.2));
 
   // 2. Horizon atmosphere: light outside the planet's edge, on an ellipse 1.3x its size.
   float r = ell(p, uPlanet);
@@ -80,32 +81,38 @@ void main() {
     float aa = smoothstep(RIM - 0.004, RIM, u);       // the 0.4% edge ramp the CSS has
     float tx = (p.x - uWrap.x) / uWrap.y;
     float side = smoothstep(0.0, 0.4, tx) * (1.0 - smoothstep(0.6, 1.0, tx));
-    // A slow sweep of light travels along the rim, left to right (~20s per pass).
-    float sweep = 1.0 + env * 0.58 * sin(tx * 6.2832 - t * 0.31);
+    // A broad swell of light rolls along the rim (~13s), and a narrow glint runs across it
+    // left to right every 9s (it wraps while off the masked ends, so the jump is unseen).
+    float sweep = 1.0 + env * 0.45 * sin(tx * 6.2832 - t * 0.48);
+    float pos = -0.25 + 1.5 * fract(t / 9.0);
+    float glint = env * exp(-pow((tx - pos) / 0.08, 2.0));
     float w = (u - RIM) / (1.0 - RIM);
     // As in CSS, the layers form one group (premultiplied) and the side mask applies to it.
     vec4 g = vec4(0.0);
     float a;
     a = aa * 0.16 * fall(w, 1.6);                         g = g * (1.0 - a) + vec4(PERIWINKLE * a, a);
-    a = aa * 0.36 * sweep * fall(w, 2.0);                 g = g * (1.0 - a) + vec4(INDIGO * a, a);
-    a = aa * 0.50 * sweep * easeOut((u - RIM) / 0.15, 2.4); g = g * (1.0 - a) + vec4(PERI * a, a);
-    a = aa * 0.75 * easeOut((u - RIM) / 0.06, 2.6);       g = g * (1.0 - a) + vec4(VIOLET * a, a);
-    a = aa * 0.95 * easeOut((u - RIM) / 0.016, 2.2);      g = g * (1.0 - a) + vec4(LAVENDER * a, a);
+    a = aa * 0.36 * (sweep + 2.2 * glint) * fall(w, 2.0);                 g = g * (1.0 - a) + vec4(INDIGO * a, a);
+    a = aa * 0.50 * (sweep + 2.0 * glint) * easeOut((u - RIM) / 0.15, 2.4); g = g * (1.0 - a) + vec4(PERI * a, a);
+    a = min(1.0, aa * 0.75 * (1.0 + 1.4 * glint) * easeOut((u - RIM) / 0.06, 2.6)); g = g * (1.0 - a) + vec4(VIOLET * a, a);
+    a = min(1.0, aa * 0.95 * (1.0 + 0.6 * glint) * easeOut((u - RIM) / 0.016, 2.2)); g = g * (1.0 - a) + vec4(LAVENDER * a, a);
     col = col * (1.0 - g.a * side) + g.rgb * side;
   }
 
-  // 3. Console halo (.hero-stage::after): it breathes, ~9s period.
+  // 3. Console halo (.hero-stage::after): it breathes, ~6s period.
   float rh = ell(p, uHalo);
-  float breathe = 1.0 + env * 0.30 * sin(t * 0.7);
+  float breathe = 1.0 + env * 0.45 * sin(t * 1.05);
   col = over(col, VIOLET, 0.09 * breathe * plateau(rh, 0.24, 2.8));
   col = over(col, INDIGO, 0.32 * breathe * plateau(rh, 0.28, 2.2));
 
   // 4. Light under the console (.hero-continue::before).
-  col = over(col, INDIGO, 0.26 * (1.0 + env * 0.25 * sin(t * 0.7 + 0.6)) * fall(ell(p, uSpill), 2.0));
+  col = over(col, INDIGO, 0.26 * (1.0 + env * 0.40 * sin(t * 1.05 + 0.6)) * fall(ell(p, uSpill), 2.0));
 
   // Dither in float, before the 8-bit write.
   vec2 q = gl_FragCoord.xy;
-  col += (hash(q) + hash(q + 37.0) - 1.0) / 255.0;
+  // Interleaved gradient noise (Jimenez 2014): low-discrepancy, so it breaks 8-bit steps at a
+  // lower amplitude than white noise, i.e. with less visible grain.
+  float ign = fract(52.9829189 * fract(dot(q, vec2(0.06711056, 0.00583715))));
+  col += (ign - 0.5) * 2.0 * DITHER / 255.0;
 
   outColor = vec4(col, 1.0);
 }`

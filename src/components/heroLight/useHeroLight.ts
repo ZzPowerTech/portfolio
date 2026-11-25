@@ -15,11 +15,13 @@ import type { FromWorker, LightGeometry, ToWorker, Vec4 } from './light.worker'
 
 // Render resolution in device px per CSS px. The light is low-frequency (the sharpest
 // feature, the horizon rim, is ~4.6 CSS px of anti-aliasing), so it is drawn below CSS
-// resolution and the compositor's bilinear upscale fills in; the page-wide dither film then
+// resolution and the compositor's bilinear upscale fills in. 0.75 rather than 0.5: the
+// shader's own dither survives the upscale better there (dark-tail flat runs 8/7 px vs
+// 10/8 px at the same grain); the page-wide dither film then
 // grains the result at device resolution. (?lightscale=<n> overrides it, for comparisons.)
 function renderScale(): number {
   const q = Number(new URLSearchParams(window.location.search).get('lightscale'))
-  return q > 0 ? q : 0.5
+  return q > 0 ? q : 0.75
 }
 
 function measure(hero: HTMLElement): LightGeometry | null {
