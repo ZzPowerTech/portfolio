@@ -82,10 +82,12 @@ body {
 
 /*
  * Dither film over the whole page. A 128px blue-noise tile of white and black pixels at
- * alpha 0-3/255 adds or removes about one 8-bit level per pixel, whatever the brightness
+ * alpha 0-2/255 adds or removes up to ~two 8-bit levels per pixel, whatever the brightness
  * underneath, which breaks the banding of dark gradients (an overlay blend can't: it scales
  * the noise by the backdrop, so it fades out exactly in the dark tones that band most).
  * Blue noise (no low frequencies) reads as finer grain than white noise at the same strength.
+ * (Alpha up to 3/255 read as visible grain on near-black; up to 1/255 let the dark tails band
+ * again: 2/255 is the measured middle.)
  * It covers the page edge to edge on purpose: its small average lift is then uniform, and a
  * layer that stopped somewhere would leave a step where it stops.
  */
