@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+  Link-preview cover (og:image), rendered by scripts/og/render.mjs.
+  1200x630 card for large previews; the right-hand portrait area is also designed to stand
+  on its own, because chat apps (WhatsApp & co.) crop the card to a small face-centred
+  thumbnail. Same palette and lighting as the site's hero.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@500;600;800&display=swap" />
+<style>
+  :root {
+    --bg: #04050d;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --dim: #64748b;
+    --violet: #a78bfa;
+    --indigo: #6366f1;
+    --mint: #6ee7b7;
+    --line: rgba(148, 163, 255, 0.22);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; background: var(--bg); overflow: hidden; }
+  body { position: relative; font-family: 'Schibsted Grotesk', system-ui, sans-serif; color: var(--text); }
+
+  /* ---- light (same falloffs as the hero: no linear ramps, nothing cut by a box) ---- */
+  .light { position: absolute; inset: 0; }
+  .light::before {           /* ambient wash, strongest behind the portrait */
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(48% 70% at 77% 46%, rgba(99, 102, 241, 0.42), rgba(99, 102, 241, 0.25) 35%, rgba(99, 102, 241, 0.08) 65%, transparent 92%),
+      radial-gradient(30% 42% at 84% 30%, rgba(167, 139, 250, 0.30), rgba(167, 139, 250, 0.10) 55%, transparent 90%),
+      radial-gradient(40% 60% at 12% 85%, rgba(99, 102, 241, 0.14), transparent 85%);
+  }
+  /* Horizon: a huge ellipse whose rim is lit from behind, passing behind the shoulders. */
+  .horizon {
+    position: absolute; left: 360px; top: 470px; width: 1500px; height: 760px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, transparent 96.2%, rgba(221, 214, 254, 0.95) 96.6%, rgba(167, 139, 250, 0.55) 97.4%, rgba(129, 140, 248, 0.22) 98.6%, rgba(99, 102, 241, 0.06) 99.6%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 55%, transparent 80%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 55%, transparent 80%);
+  }
+  .horizon-glow {            /* atmosphere above the rim */
+    position: absolute; left: 260px; top: 360px; width: 1700px; height: 980px; border-radius: 50%;
+    background: radial-gradient(closest-side, transparent 76%, rgba(129, 140, 248, 0.20) 80%, rgba(99, 102, 241, 0.08) 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 25%, #000 50%, transparent 78%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 25%, #000 50%, transparent 78%);
+  }
+
+  /* ---- portrait ---- */
+  .portrait-wrap {
+    /* The rim glow lives on this wrapper: a mask on the image itself would clip the glow
+       to the image's box and draw a rectangle around the photo. */
+    position: absolute; right: 18px; bottom: -36px; height: 640px;
+    filter: drop-shadow(0 0 1px rgba(196, 181, 253, 0.55)) drop-shadow(0 0 26px rgba(129, 140, 248, 0.35));
+  }
+  .portrait {
+    display: block; height: 100%;
+    /* The source photo crops the shoulders flat at its sides and bottom. An elliptical mask
+       keeps the head whole and dissolves the shoulders toward the lower corners, so no
+       straight cut (and no rim glow along one) is left. */
+    -webkit-mask-image:
+      radial-gradient(62% 78% at 50% 32%, #000 62%, rgba(0, 0, 0, 0.72) 74%, rgba(0, 0, 0, 0.32) 87%, transparent 100%),
+      linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 6%, #000 16%, #000 84%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
+    mask-image:
+      radial-gradient(62% 78% at 50% 32%, #000 62%, rgba(0, 0, 0, 0.72) 74%, rgba(0, 0, 0, 0.32) 87%, transparent 100%),
+      linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 6%, #000 16%, #000 84%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .tag {                     /* stays inside the face-centred crop chat apps make */
+    position: absolute; right: 64px; bottom: 44px;
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 14px 8px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(10, 13, 30, 0.72);
+    font: 500 17px 'JetBrains Mono', monospace; color: var(--muted);
+  }
+  .tag i { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 10px rgba(110, 231, 183, 0.8); }
+  .tag b { color: var(--text); font-weight: 500; }
+
+  /* ---- text ---- */
+  .copy { position: absolute; left: 72px; top: 96px; width: 600px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: rgba(17, 22, 50, 0.6); font: 500 17px 'JetBrains Mono', monospace; color: var(--muted);
+  }
+  .pill .get { color: var(--mint); }
+  .pill .ok { color: var(--mint); }
+  .name { margin-top: 30px; font-size: 26px; font-weight: 600; color: #cbd5e1; letter-spacing: -0.01em; }
+  .name span { color: var(--violet); }
+  h1 { margin-top: 14px; font-size: 64px; line-height: 1.02; font-weight: 800; letter-spacing: -0.035em; }
+  .stack { margin-top: 26px; font-size: 22px; color: var(--muted); }
+  .url { position: absolute; left: 72px; bottom: 54px; font: 500 18px 'JetBrains Mono', monospace; color: var(--dim); }
+</style>
+</head>
+<body>
+  <div class="light"></div>
+  <div class="horizon-glow"></div>
+  <div class="horizon"></div>
+  <div class="portrait-wrap"><img class="portrait" src="../../design/murillo-cutout.png" alt="" /></div>
+  <div class="tag"><i></i><b>Murillo</b> · backend</div>
+
+  <div class="copy">
+    <div class="pill"><span class="get">GET</span> /v1/perfil <span class="ok">200 OK</span></div>
+    <p class="name">Murillo Weiss Kist · <span>cofundador da GWNext</span></p>
+    <h1>Construo backends para regras que não podem errar.</h1>
+    <p class="stack">Java · Spring Boot · TypeScript · NestJS · IA</p>
+  </div>
+  <p class="url">portfolio.weissmurillo.de</p>
+</body>
+</html>
