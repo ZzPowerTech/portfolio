@@ -3,7 +3,7 @@
   Link-preview cover (og:image), rendered by scripts/og/render.mjs.
   1200x630 card for large previews; the right-hand portrait area is also designed to stand
   on its own, because chat apps (WhatsApp & co.) crop the card to a small face-centred
-  thumbnail. Same palette and lighting as the site's hero.
+  thumbnail: the figure rising from behind the lit horizon carries that crop. Same palette and lighting as the site's hero.
 -->
 <html lang="pt-BR">
 <head>
@@ -33,11 +33,13 @@
       radial-gradient(30% 42% at 84% 30%, rgba(167, 139, 250, 0.30), rgba(167, 139, 250, 0.10) 55%, transparent 90%),
       radial-gradient(40% 60% at 12% 85%, rgba(99, 102, 241, 0.14), transparent 85%);
   }
-  /* Horizon: a huge ellipse whose rim is lit from behind, passing behind the shoulders. */
+  /* Horizon: a huge dark ellipse (the planet) with its rim lit from behind. It is drawn in
+     front of the portrait, so the shoulders disappear behind it and the light of the rim
+     passes in front of the shirt: the figure rises from behind the horizon. */
   .horizon {
     position: absolute; left: 360px; top: 470px; width: 1500px; height: 760px;
     border-radius: 50%;
-    background: radial-gradient(closest-side, transparent 96.2%, rgba(221, 214, 254, 0.95) 96.6%, rgba(167, 139, 250, 0.55) 97.4%, rgba(129, 140, 248, 0.22) 98.6%, rgba(99, 102, 241, 0.06) 99.6%, transparent 100%);
+    background: radial-gradient(closest-side, var(--bg) 95.9%, rgba(221, 214, 254, 0.95) 96.6%, rgba(167, 139, 250, 0.55) 97.4%, rgba(129, 140, 248, 0.22) 98.6%, rgba(99, 102, 241, 0.06) 99.6%, transparent 100%);
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 55%, transparent 80%);
     mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 55%, transparent 80%);
   }
@@ -69,15 +71,6 @@
     -webkit-mask-composite: source-in;
     mask-composite: intersect;
   }
-  .tag {                     /* stays inside the face-centred crop chat apps make */
-    position: absolute; right: 64px; bottom: 44px;
-    display: flex; align-items: center; gap: 9px;
-    padding: 8px 14px 8px 12px; border-radius: 999px;
-    border: 1px solid var(--line); background: rgba(10, 13, 30, 0.72);
-    font: 500 17px 'JetBrains Mono', monospace; color: var(--muted);
-  }
-  .tag i { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 10px rgba(110, 231, 183, 0.8); }
-  .tag b { color: var(--text); font-weight: 500; }
 
   /* ---- text ---- */
   .copy { position: absolute; left: 72px; top: 96px; width: 600px; }
@@ -98,9 +91,8 @@
 <body>
   <div class="light"></div>
   <div class="horizon-glow"></div>
-  <div class="horizon"></div>
   <div class="portrait-wrap"><img class="portrait" src="../../design/murillo-cutout.png" alt="" /></div>
-  <div class="tag"><i></i><b>Murillo</b> · backend</div>
+  <div class="horizon"></div>
 
   <div class="copy">
     <div class="pill"><span class="get">GET</span> /v1/perfil <span class="ok">200 OK</span></div>
