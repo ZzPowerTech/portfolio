@@ -69,6 +69,7 @@ html {
 }
 
 body {
+  position: relative;
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -77,6 +78,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+/*
+ * Dither film over the whole page: a zero-mean grey noise tile (127.5 +- 4) blended with
+ * overlay breaks 8-bit banding in every gradient by about one level. It covers the page
+ * edge to edge on purpose: any layer that stops somewhere leaves a step where it stops.
+ */
+body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  background: url("./assets/dither.png") repeat;
+  background-size: 64px 64px;
+  mix-blend-mode: overlay;
 }
 
 #root {
