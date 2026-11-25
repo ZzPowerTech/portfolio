@@ -24,13 +24,19 @@ export function Hero() {
       </div>
 
       <div className="hero-stage">
+        <div className="hero-horizon" aria-hidden="true" />
         <ApiConsole />
       </div>
 
       <div className="hero-continue">
         <a href="#about" aria-label={t.hero.continue}>
           <span className="hero-continue-line" />
-          <span className="hero-continue-dot" />
+          <span className="hero-continue-node">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className="hero-continue-line hero-continue-line-out" />
         </a>
       </div>
     </section>

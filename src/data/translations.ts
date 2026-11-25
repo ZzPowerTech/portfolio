@@ -40,6 +40,9 @@ export interface Translations {
       endpoints: string
       send: string
       preview: string
+      status: string
+      readOnly: string
+      navigate: string
     }
   }
   about: {
@@ -103,6 +106,9 @@ export const translations: Record<Language, Translations> = {
         endpoints: 'Endpoints',
         send: 'Enviar',
         preview: 'Pré-visualização',
+        status: 'API pública',
+        readOnly: 'somente leitura',
+        navigate: 'navegar',
       },
     },
     about: {
@@ -200,6 +206,9 @@ export const translations: Record<Language, Translations> = {
         endpoints: 'Endpoints',
         send: 'Send',
         preview: 'Preview',
+        status: 'Public API',
+        readOnly: 'read-only',
+        navigate: 'navigate',
       },
     },
     about: {

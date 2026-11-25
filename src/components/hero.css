@@ -126,15 +126,118 @@
 }
 
 .api-window {
+  position: relative;
   text-align: left;
   border: 1px solid var(--line-2);
-  border-bottom: none;
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   background: linear-gradient(180deg, var(--panel-2), var(--panel) 30%);
-  box-shadow: 0 -20px 80px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 -20px 80px rgba(99, 102, 241, 0.18),
+    0 40px 120px -30px rgba(99, 102, 241, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent);
-  mask-image: linear-gradient(180deg, #000 80%, transparent);
+}
+
+/* Lit bottom edge: the console sits on the horizon and catches its light. */
+.hero-stage::before {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 0;
+  height: 1px;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.9) 30%, rgba(125, 211, 252, 0.9) 70%, transparent);
+  box-shadow: 0 0 18px 1px rgba(167, 139, 250, 0.55);
+}
+
+/*
+ * Horizon: a huge dark ellipse behind the console whose rim is lit from behind.
+ * The wrapper fades the rim out toward the sides; the ellipse itself carries the
+ * light as box-shadows (a mask on the ellipse would clip them).
+ */
+.hero-horizon {
+  --apex: 170px; /* how far above the console's bottom edge the rim peaks */
+  position: absolute;
+  left: -32%;
+  right: -32%;
+  top: calc(100% - var(--apex) - 200px);
+  height: 1400px;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 4%, #000 34%, #000 66%, transparent 96%);
+  mask-image: linear-gradient(90deg, transparent 4%, #000 34%, #000 66%, transparent 96%);
+}
+
+.hero-horizon::before {
+  content: "";
+  position: absolute;
+  top: 200px;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1.8;
+  border-radius: 50%;
+  background: var(--bg-base);
+  box-shadow:
+    0 -1px 0 rgba(196, 181, 253, 0.7),
+    0 -10px 30px rgba(167, 139, 250, 0.45),
+    0 -50px 120px rgba(99, 102, 241, 0.45),
+    0 -120px 200px rgba(56, 189, 248, 0.12);
+}
+
+/* ---------- Status bar (bottom of the console) ---------- */
+
+.api-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--line);
+  background: rgba(148, 163, 255, 0.025);
+  font: 11.5px var(--font-mono);
+  color: var(--text-muted);
+}
+
+.api-status-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.api-status-live::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 8px rgba(110, 231, 183, 0.8);
+}
+
+.api-status-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.api-status-keys kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--line-2);
+  border-radius: 5px;
+  background: rgba(148, 163, 255, 0.05);
+  font: 10.5px var(--font-mono);
+  color: var(--text-secondary);
 }
 
 .api-titlebar {
@@ -285,7 +388,7 @@
 .api-response {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: 380px;
+  min-height: 340px;
 }
 
 .api-response.has-preview {
@@ -444,6 +547,16 @@
     display: none;
   }
 
+  .api-status-keys {
+    display: none;
+  }
+
+  .hero-horizon {
+    --apex: 90px;
+    left: -60%;
+    right: -60%;
+  }
+
   .api-json {
     font-size: 12.5px;
   }
@@ -457,54 +570,110 @@
   }
 }
 
-/* ---------- Continuity: the request "flows" from the console into the next section ---------- */
+/* ---------- Continuity: the request "flows" out of the console into the next section ---------- */
 
 .hero-continue {
   position: relative;
   display: flex;
   justify-content: center;
-  margin-top: -28px;
-  padding-bottom: 8px;
+}
+
+/* Light the console spills onto the horizon right under its bottom edge. */
+.hero-continue::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(960px, 100%);
+  height: 220px;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0, rgba(99, 102, 241, 0.26), rgba(167, 139, 250, 0.06) 55%, transparent 80%);
 }
 
 .hero-continue a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
   padding: 0 16px;
+  color: var(--violet);
 }
 
 .hero-continue-line {
+  position: relative;
   display: block;
-  width: 1px;
-  height: 96px;
-  background: linear-gradient(180deg, transparent, var(--violet));
+  width: 2px;
+  height: 84px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.95), rgba(99, 102, 241, 0.55));
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.55);
+  overflow: hidden;
 }
 
-.hero-continue-dot {
-  display: block;
-  width: 7px;
-  height: 7px;
+.hero-continue-line-out {
+  height: 40px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.55), rgba(99, 102, 241, 0.08));
+  box-shadow: none;
+}
+
+/* A pulse of light travels down the cable, from the console to the node. */
+.hero-continue-line:not(.hero-continue-line-out)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -40%;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, #fff, transparent);
+  animation: hero-flow 2.8s ease-in 1s infinite;
+}
+
+@keyframes hero-flow {
+  to {
+    top: 100%;
+  }
+}
+
+.hero-continue-node {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--violet);
-  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.55);
+  background: radial-gradient(circle at 50% 35%, #1d2150, var(--panel));
+  box-shadow:
+    0 0 0 6px rgba(167, 139, 250, 0.07),
+    0 0 28px rgba(167, 139, 250, 0.45);
+  transition: transform 0.2s, box-shadow 0.2s;
   animation: hero-pulse 2.4s ease-in-out 1.2s 2;
+}
+
+.hero-continue a:hover .hero-continue-node,
+.hero-continue a:focus-visible .hero-continue-node {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 0 8px rgba(167, 139, 250, 0.12),
+    0 0 36px rgba(167, 139, 250, 0.7);
 }
 
 @keyframes hero-pulse {
   50% {
-    box-shadow: 0 0 0 9px rgba(167, 139, 250, 0);
+    box-shadow:
+      0 0 0 12px rgba(167, 139, 250, 0),
+      0 0 28px rgba(167, 139, 250, 0.45);
   }
 }
 
 /* The section right after the hero starts where the connector ends. */
 .hero + .section {
-  padding-top: 16px;
+  padding-top: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-continue-dot {
+  .hero-continue-node,
+  .hero-continue-line::after {
     animation: none;
   }
 }

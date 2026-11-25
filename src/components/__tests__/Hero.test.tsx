@@ -34,6 +34,11 @@ describe('Hero', () => {
     expect(screen.getByAltText('Murillo Weiss Kist')).toBeInTheDocument()
   })
 
+  it('closes the console with a status bar that counts the endpoints', () => {
+    render(<Hero />, { wrapper: Wrapper })
+    expect(screen.getByText(/API pública · 5 endpoints · somente leitura/)).toBeInTheDocument()
+  })
+
   it('switches the response when another endpoint is clicked', async () => {
     render(<Hero />, { wrapper: Wrapper })
     await userEvent.click(screen.getByRole('tab', { name: /\/agora/ }))

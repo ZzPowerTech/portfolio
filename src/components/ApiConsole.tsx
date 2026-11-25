@@ -143,6 +143,15 @@ export function ApiConsole() {
           </div>
         </div>
       </div>
+
+      <div className="api-statusbar">
+        <span className="api-status-live">
+          {t.hero.console.status} · {endpoints.length} endpoints · {t.hero.console.readOnly}
+        </span>
+        <span className="api-status-keys" aria-hidden="true">
+          <kbd>↑</kbd><kbd>↓</kbd> {t.hero.console.navigate}
+        </span>
+      </div>
     </div>
   )
 }
