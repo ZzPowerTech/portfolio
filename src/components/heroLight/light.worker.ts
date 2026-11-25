@@ -18,14 +18,13 @@ export interface LightGeometry {
   spill: Vec4
 }
 export type ToWorker =
-  | { type: 'init'; canvas: OffscreenCanvas; reduced: boolean; stats: boolean }
+  | { type: 'init'; canvas: OffscreenCanvas; reduced: boolean }
   | { type: 'geometry'; geometry: LightGeometry }
   | { type: 'visible'; visible: boolean }
   | { type: 'reduced'; reduced: boolean }
 export type FromWorker =
   | { type: 'ready' }
   | { type: 'fail'; reason: string }
-  | { type: 'stats'; fps: number; gpuMs: number | null; frameMs: number | null; renderer: string }
 
 type Ctx = {
   gl: WebGL2RenderingContext
@@ -50,26 +49,7 @@ let clock = 0          // seconds of motion shown so far (pauses don't jump)
 let last = 0
 let readySent = false
 
-// Optional diagnostics (?lightstats).
-// - gpuMs: GPU time from EXT_disjoint_timer_query_webgl2. Chrome hides this extension by
-//   default (timing-attack mitigation), so it is usually unavailable.
-// - frameMs: wall time to draw a frame and wait for the GPU to finish it (a 1-pixel
-//   readPixels forces completion). An upper bound on the GPU cost; sampled every 30 frames
-//   so the forced sync doesn't disturb the loop.
-// - renderer: the GPU the browser gave WebGL (WEBGL_debug_renderer_info), or "SwiftShader"
-//   style names when it fell back to software rendering.
-let renderer = ''
-let frameSum = 0
-let frameN = 0
-const pixel = new Uint8Array(4)
-let timer: { ext: { TIME_ELAPSED_EXT: number; GPU_DISJOINT_EXT: number }; pending: WebGLQuery[] } | null = null
-let statsOn = false
-let statFrames = 0
-let statStart = 0
-let gpuSum = 0
-let gpuN = 0
-
-function setup(canvas: OffscreenCanvas, stats: boolean): Ctx | null {
+function setup(canvas: OffscreenCanvas): Ctx | null {
   const gl = canvas.getContext('webgl2', {
     alpha: false, antialias: false, depth: false, stencil: false,
     premultipliedAlpha: true, preserveDrawingBuffer: false, powerPreference: 'low-power',
@@ -92,12 +72,6 @@ function setup(canvas: OffscreenCanvas, stats: boolean): Ctx | null {
   const loc: Ctx['loc'] = {}
   for (const n of ['uRes', 'uScale', 'uTime', 'uAmb1', 'uAmb2', 'uAmb3', 'uPlanet', 'uWrap', 'uHalo', 'uSpill']) {
     loc[n] = gl.getUniformLocation(prog, n)
-  }
-  if (stats) {
-    const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
-    if (ext) timer = { ext, pending: [] }
-    const dbg = gl.getExtension('WEBGL_debug_renderer_info')
-    renderer = String(gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER))
   }
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault()
@@ -131,37 +105,11 @@ function applyGeometry() {
 function draw(t: number) {
   if (!ctx || !geom) return
   const { gl, loc } = ctx
-  let q: WebGLQuery | null = null
-  if (timer) {
-    q = gl.createQuery()
-    gl.beginQuery(timer.ext.TIME_ELAPSED_EXT, q!)
-  }
   gl.uniform1f(loc.uTime, t)
   gl.drawArrays(gl.TRIANGLES, 0, 3)
-  if (timer && q) {
-    gl.endQuery(timer.ext.TIME_ELAPSED_EXT)
-    timer.pending.push(q)
-    collectTimers()
-  }
   if (!readySent) {
     readySent = true
     post({ type: 'ready' })
-  }
-}
-
-function collectTimers() {
-  if (!ctx || !timer) return
-  const { gl } = ctx
-  const disjoint = gl.getParameter(timer.ext.GPU_DISJOINT_EXT)
-  while (timer.pending.length) {
-    const q = timer.pending[0]
-    if (!gl.getQueryParameter(q, gl.QUERY_RESULT_AVAILABLE)) break
-    if (!disjoint) {
-      gpuSum += gl.getQueryParameter(q, gl.QUERY_RESULT) / 1e6
-      gpuN++
-    }
-    gl.deleteQuery(q)
-    timer.pending.shift()
   }
 }
 
@@ -169,29 +117,7 @@ function frame(now: number) {
   frameId = 0
   if (last) clock += Math.min(0.1, (now - last) / 1000)
   last = now
-  if (statsOn && ctx && statFrames % 30 === 0) {
-    const t0 = performance.now()
-    draw(clock)
-    ctx.gl.readPixels(0, 0, 1, 1, ctx.gl.RGBA, ctx.gl.UNSIGNED_BYTE, pixel)
-    frameSum += performance.now() - t0
-    frameN++
-  } else {
-    draw(clock)
-  }
-  if (statsOn) {
-    statFrames++
-    if (!statStart) statStart = now
-    if (now - statStart >= 1000) {
-      post({
-        type: 'stats',
-        fps: (statFrames * 1000) / (now - statStart),
-        gpuMs: gpuN ? gpuSum / gpuN : null,
-        frameMs: frameN ? frameSum / frameN : null,
-        renderer,
-      })
-      statFrames = 0; statStart = now; gpuSum = 0; gpuN = 0; frameSum = 0; frameN = 0
-    }
-  }
+  draw(clock)
   schedule()
 }
 
@@ -223,9 +149,8 @@ self.onmessage = (e: MessageEvent<ToWorker>) => {
   try {
     if (msg.type === 'init') {
       reduced = msg.reduced
-      ctx = setup(msg.canvas, msg.stats)
+      ctx = setup(msg.canvas)
       if (!ctx) post({ type: 'fail', reason: 'no webgl2' })
-      statsOn = msg.stats
     } else if (msg.type === 'geometry') {
       geom = msg.geometry
       applyGeometry()

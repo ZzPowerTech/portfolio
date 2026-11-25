@@ -17,12 +17,9 @@ import type { FromWorker, LightGeometry, ToWorker, Vec4 } from './light.worker'
 // feature, the horizon rim, is ~4.6 CSS px of anti-aliasing), so it is drawn below CSS
 // resolution and the compositor's bilinear upscale fills in. 0.75 rather than 0.5: the
 // shader's own dither survives the upscale better there (dark-tail flat runs 8/7 px vs
-// 10/8 px at the same grain); the page-wide dither film then
-// grains the result at device resolution. (?lightscale=<n> overrides it, for comparisons.)
-function renderScale(): number {
-  const q = Number(new URLSearchParams(window.location.search).get('lightscale'))
-  return q > 0 ? q : 0.75
-}
+// 10/8 px at the same grain); the page-wide dither film then grains the result at device
+// resolution.
+const RENDER_SCALE = 0.75
 
 function measure(hero: HTMLElement): LightGeometry | null {
   const stage = hero.querySelector<HTMLElement>('.hero-stage')
@@ -58,7 +55,7 @@ function measure(hero: HTMLElement): LightGeometry | null {
   return {
     width: W,
     height: H,
-    scale: renderScale(),
+    scale: RENDER_SCALE,
     amb1: amb(0.5, 0.58, 0.7, 0.3),
     amb2: amb(0.3, 0.72, 0.4, 0.16),
     amb3: amb(0.72, 0.74, 0.4, 0.14),
@@ -89,11 +86,9 @@ export function useHeroLight(heroRef: RefObject<HTMLElement | null>) {
     const send = (msg: ToWorker, transfer: Transferable[] = []) => worker.postMessage(msg, transfer)
 
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const stats = new URLSearchParams(window.location.search).has('lightstats')
     const offscreen = canvas.transferControlToOffscreen()
-    send({ type: 'init', canvas: offscreen, reduced: motion.matches, stats }, [offscreen])
+    send({ type: 'init', canvas: offscreen, reduced: motion.matches }, [offscreen])
 
-    let statsEl: HTMLElement | null = null
     const fallback = () => {
       delete hero.dataset.light
       canvas.remove()
@@ -103,18 +98,6 @@ export function useHeroLight(heroRef: RefObject<HTMLElement | null>) {
       const msg = e.data
       if (msg.type === 'ready') hero.dataset.light = 'gl'
       else if (msg.type === 'fail') fallback()
-      else if (msg.type === 'stats') {
-        if (!statsEl) {
-          statsEl = document.createElement('output')
-          statsEl.className = 'hero-light-stats'
-          document.body.append(statsEl)
-        }
-        const ms = (v: number | null) => (v === null ? '–' : v.toFixed(2) + ' ms')
-        statsEl.textContent =
-          `light ${msg.fps.toFixed(0)} fps · quadro ≤ ${ms(msg.frameMs)}` +
-          (msg.gpuMs === null ? '' : ` · GPU ${ms(msg.gpuMs)}`) +
-          ` · ${msg.renderer || 'renderer oculto'}`
-      }
     }
     worker.onerror = fallback
 
@@ -147,7 +130,6 @@ export function useHeroLight(heroRef: RefObject<HTMLElement | null>) {
       worker.terminate()
       delete hero.dataset.light
       canvas.remove()
-      statsEl?.remove()
     }
   }, [heroRef])
 }
