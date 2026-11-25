@@ -26,7 +26,7 @@ describe('Header', () => {
 
   it('language toggle switches PT to EN', async () => {
     render(<Header />, { wrapper: Wrapper })
-    const btn = screen.getByRole('button', { name: /pt/i })
+    const btn = screen.getByRole('button', { name: /switch to english/i })
     expect(btn).toBeInTheDocument()
     await userEvent.click(btn)
     expect(btn).toHaveTextContent('EN | PT')

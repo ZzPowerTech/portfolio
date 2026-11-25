@@ -20,6 +20,6 @@ describe('Footer', () => {
 
   it('shows copyright text', () => {
     render(<Footer />, { wrapper: Wrapper })
-    expect(screen.getByText(/murillo w\. kist/i)).toBeInTheDocument()
+    expect(screen.getByText(/murillo weiss kist/i)).toBeInTheDocument()
   })
 })

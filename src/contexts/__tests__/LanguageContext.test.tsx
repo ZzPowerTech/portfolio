@@ -8,7 +8,7 @@ function Consumer() {
   return (
     <div>
       <span data-testid="lang">{lang}</span>
-      <span data-testid="tag">{t.hero.tag}</span>
+      <span data-testid="tag">{t.hero.headline}</span>
       <button onClick={toggle}>toggle</button>
     </div>
   )
@@ -18,14 +18,16 @@ describe('LanguageContext', () => {
   it('defaults to Portuguese', () => {
     render(<LanguageProvider><Consumer /></LanguageProvider>)
     expect(screen.getByTestId('lang')).toHaveTextContent('pt')
-    expect(screen.getByTestId('tag')).toHaveTextContent('DESENVOLVEDOR')
+    expect(screen.getByTestId('tag')).toHaveTextContent('Construo backends')
+    expect(document.documentElement.lang).toBe('pt-BR')
   })
 
   it('toggles to English on click', async () => {
     render(<LanguageProvider><Consumer /></LanguageProvider>)
     await userEvent.click(screen.getByRole('button', { name: /toggle/i }))
     expect(screen.getByTestId('lang')).toHaveTextContent('en')
-    expect(screen.getByTestId('tag')).toHaveTextContent('DEVELOPER')
+    expect(screen.getByTestId('tag')).toHaveTextContent('I build backends')
+    expect(document.documentElement.lang).toBe('en')
   })
 
   it('throws when used outside provider', () => {

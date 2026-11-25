@@ -1,6 +1,7 @@
 // src/components/__tests__/Repos.test.tsx
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { LanguageProvider } from '../../contexts/LanguageContext'
+import { REPOS } from '../../data/repos'
 import { Repos } from '../Repos'
 
 vi.mock('framer-motion', () => ({
@@ -11,12 +12,6 @@ vi.mock('framer-motion', () => ({
   },
 }))
 
-const mockRepo = (slug: string) => ({
-  name: slug, description: `desc-${slug}`,
-  html_url: `https://github.com/ZzPowerTech/${slug}`,
-  language: 'TypeScript', stargazers_count: 3,
-})
-
 function Wrapper({ children }: { children: React.ReactNode }) {
   return <LanguageProvider>{children}</LanguageProvider>
 }
@@ -24,25 +19,19 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 describe('Repos', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('shows loading state initially', () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(new Response())
+  it('renders the curated repositories without calling the GitHub API', () => {
+    const fetchSpy = vi.spyOn(global, 'fetch')
     render(<Repos />, { wrapper: Wrapper })
-    expect(screen.getByText(/carregando|loading/i)).toBeInTheDocument()
+    expect(screen.getAllByRole('link')).toHaveLength(REPOS.length)
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('renders 6 repo cards after load', async () => {
-    vi.spyOn(global, 'fetch').mockImplementation((url) => {
-      const slug = String(url).split('/').pop()!
-      return Promise.resolve(new Response(JSON.stringify(mockRepo(slug)), { status: 200 }))
-    })
+  it('gives every repository a real description', () => {
     render(<Repos />, { wrapper: Wrapper })
-    await waitFor(() => expect(screen.queryByText(/carregando|loading/i)).not.toBeInTheDocument())
-    expect(screen.getAllByRole('link')).toHaveLength(6)
-  })
-
-  it('shows error message on fetch failure', async () => {
-    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('fail'))
-    render(<Repos />, { wrapper: Wrapper })
-    await waitFor(() => expect(screen.getByText(/erro|error/i)).toBeInTheDocument())
+    expect(screen.queryByText('—')).not.toBeInTheDocument()
+    for (const repo of REPOS) {
+      expect(repo.desc.pt.length).toBeGreaterThan(20)
+      expect(repo.desc.en.length).toBeGreaterThan(20)
+    }
   })
 })

@@ -17,24 +17,28 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe('Projects', () => {
-  it('renders all 4 project cards', () => {
+  it('features AgroConIA as the live project linking to its site', () => {
     render(<Projects />, { wrapper: Wrapper })
-    expect(screen.getByText('AusTv Network')).toBeInTheDocument()
-    expect(screen.getByText('AusTv Store')).toBeInTheDocument()
-    expect(screen.getByText('Intercom 2026 — FAG')).toBeInTheDocument()
-    expect(screen.getByText('Landing Page — Samuel')).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: /agroconia/i })
+    expect(link).toHaveAttribute('href', 'https://www.agroconia.com.br/')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(screen.getAllByText('NO AR')).toHaveLength(1)
   })
 
-  it('each card links to correct URL in new tab', () => {
+  it('marks AusTV Network and AusTV Store as shut down, without links', () => {
     render(<Projects />, { wrapper: Wrapper })
-    const austv = screen.getByRole('link', { name: /austv network/i })
-    expect(austv).toHaveAttribute('href', 'https://austv.net')
-    expect(austv).toHaveAttribute('target', '_blank')
+    expect(screen.getByText('AusTV Network')).toBeInTheDocument()
+    expect(screen.getByText('AusTV Store')).toBeInTheDocument()
+    expect(screen.getAllByText('ENCERRADO')).toHaveLength(2)
+    expect(screen.queryByRole('link', { name: /austv/i })).not.toBeInTheDocument()
   })
 
-  it('shows ONLINE badge on all cards', () => {
+  it('lists completed past projects with repository links', () => {
     render(<Projects />, { wrapper: Wrapper })
-    const badges = screen.getAllByText('ONLINE')
-    expect(badges).toHaveLength(4)
+    expect(screen.getByRole('link', { name: /intercom sul 2026/i })).toHaveAttribute(
+      'href',
+      'https://github.com/ZzPowerTech/Intercom-BackEnd-',
+    )
+    expect(screen.getAllByText('CONCLUÍDO')).toHaveLength(2)
   })
 })
