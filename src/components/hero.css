@@ -205,6 +205,11 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+/* Only the text truncates: an overflow clip on the parent would also cut the dot's glow into a square. */
+.api-status-text {
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -217,7 +222,16 @@
   height: 7px;
   border-radius: 50%;
   background: var(--mint);
-  box-shadow: 0 0 8px rgba(110, 231, 183, 0.8);
+  box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.55), 0 0 8px rgba(110, 231, 183, 0.8);
+  animation: api-live 2.4s ease-out infinite;
+}
+
+/* "Live" ping: a ring grows out of the dot and fades. */
+@keyframes api-live {
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px rgba(110, 231, 183, 0), 0 0 8px rgba(110, 231, 183, 0.8);
+  }
 }
 
 .api-status-keys {
@@ -494,6 +508,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .api-status-live::before {
+    animation: none;
+  }
+
   .api-line {
     animation: none;
     opacity: 1;
@@ -593,6 +611,7 @@
 }
 
 .hero-continue a {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -617,21 +636,55 @@
   box-shadow: none;
 }
 
-/* A pulse of light travels down the cable, from the console to the node. */
-.hero-continue-line:not(.hero-continue-line-out)::after {
-  content: "";
+/*
+ * Wave: a pulse of light leaves the console, splits around the node's ring and
+ * rejoins below it. Dashes run on pathLength=100 paths: a 12-unit dash, moved
+ * from just before the start (offset 12) to past the end (offset -100).
+ */
+.hero-wave {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: -40%;
-  height: 40%;
-  background: linear-gradient(180deg, transparent, #fff, transparent);
-  animation: hero-flow 2.8s ease-in 1s infinite;
+  top: 0;
+  left: 50%;
+  width: 104px; /* 44px of geometry + 30px each side so the halo isn't clipped by the mask */
+  height: 164px;
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent);
+  mask-image: linear-gradient(180deg, #000 70%, transparent);
 }
 
-@keyframes hero-flow {
-  to {
-    top: 100%;
+.hero-wave path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 12 200;
+  stroke-dashoffset: 12;
+  animation: hero-wave 3.2s cubic-bezier(0.45, 0.1, 0.55, 0.9) 1s infinite;
+}
+
+.hero-wave-core {
+  stroke: #f5f3ff;
+  stroke-width: 2;
+}
+
+.hero-wave-glow {
+  stroke: var(--violet);
+  stroke-width: 7;
+  opacity: 0.9;
+}
+
+/* Wide, soft halo: the light the wave throws around itself. */
+.hero-wave-haze {
+  stroke: #818cf8;
+  stroke-width: 18;
+  stroke-dasharray: 16 200;
+  opacity: 0.55;
+}
+
+@keyframes hero-wave {
+  70%,
+  100% {
+    stroke-dashoffset: -100;
   }
 }
 
@@ -647,7 +700,7 @@
     0 0 0 6px rgba(167, 139, 250, 0.07),
     0 0 28px rgba(167, 139, 250, 0.45);
   transition: transform 0.2s, box-shadow 0.2s;
-  animation: hero-pulse 2.4s ease-in-out 1.2s 2;
+  animation: hero-node-lit 3.2s ease-in-out 1s infinite;
 }
 
 .hero-continue a:hover .hero-continue-node,
@@ -658,11 +711,21 @@
     0 0 36px rgba(167, 139, 250, 0.7);
 }
 
-@keyframes hero-pulse {
-  50% {
+/* The ring lights up while the wave runs around it. */
+@keyframes hero-node-lit {
+  0%,
+  25%,
+  65%,
+  100% {
     box-shadow:
-      0 0 0 12px rgba(167, 139, 250, 0),
+      0 0 0 6px rgba(167, 139, 250, 0.07),
       0 0 28px rgba(167, 139, 250, 0.45);
+  }
+
+  42% {
+    box-shadow:
+      0 0 0 10px rgba(167, 139, 250, 0.14),
+      0 0 44px rgba(167, 139, 250, 0.85);
   }
 }
 
@@ -672,8 +735,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-continue-node,
-  .hero-continue-line::after {
+  .hero-continue-node {
     animation: none;
+  }
+
+  .hero-wave {
+    display: none;
   }
 }
