@@ -16,10 +16,30 @@
   pointer-events: none;
   -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
   mask-image: linear-gradient(180deg, #000 72%, transparent);
+  /* Gaussian falloffs (see the hero lighting note below): no linear ramp, so no visible ring where a glow ends. */
   background:
-    radial-gradient(60% 40% at 50% 70%, rgba(99, 102, 241, 0.36), transparent 70%),
-    radial-gradient(32% 28% at 30% 82%, rgba(167, 139, 250, 0.26), transparent 70%),
-    radial-gradient(32% 28% at 72% 85%, rgba(56, 189, 248, 0.16), transparent 70%);
+    radial-gradient(64% 44% at 50% 70%, rgba(99, 102, 241, 0.360) 0.0%, rgba(99, 102, 241, 0.338) 12.5%, rgba(99, 102, 241, 0.279) 25.0%, rgba(99, 102, 241, 0.202) 37.5%, rgba(99, 102, 241, 0.128) 50.0%, rgba(99, 102, 241, 0.070) 62.5%, rgba(99, 102, 241, 0.032) 75.0%, rgba(99, 102, 241, 0.010) 87.5%, rgba(99, 102, 241, 0.000) 100.0%),
+    radial-gradient(36% 32% at 30% 82%, rgba(167, 139, 250, 0.260) 0.0%, rgba(167, 139, 250, 0.244) 12.5%, rgba(167, 139, 250, 0.201) 25.0%, rgba(167, 139, 250, 0.146) 37.5%, rgba(167, 139, 250, 0.093) 50.0%, rgba(167, 139, 250, 0.051) 62.5%, rgba(167, 139, 250, 0.023) 75.0%, rgba(167, 139, 250, 0.008) 87.5%, rgba(167, 139, 250, 0.000) 100.0%),
+    radial-gradient(36% 32% at 72% 85%, rgba(56, 189, 248, 0.160) 0.0%, rgba(56, 189, 248, 0.150) 12.5%, rgba(56, 189, 248, 0.124) 25.0%, rgba(56, 189, 248, 0.090) 37.5%, rgba(56, 189, 248, 0.057) 50.0%, rgba(56, 189, 248, 0.031) 62.5%, rgba(56, 189, 248, 0.014) 75.0%, rgba(56, 189, 248, 0.005) 87.5%, rgba(56, 189, 248, 0.000) 100.0%);
+}
+
+/*
+ * Hero lighting note
+ * - Glows are radial-gradients with Gaussian stops, never large box-shadow blurs:
+ *   Chrome renders big blurs at reduced resolution, which shows up as blocky steps.
+ * - A faint signed-noise tile dithers every glow underneath it, so 8-bit output
+ *   doesn't band on dark, wide gradients (very visible on large, high-quality panels).
+ * - Animations only touch transform and opacity, so they run on the compositor
+ *   at the display's refresh rate without repainting.
+ */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("../assets/dither.png") repeat;
+  background-size: 64px 64px;
 }
 
 .hero-pill {
@@ -116,13 +136,16 @@
 .hero-stage::after {
   content: "";
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: -24px;
-  height: 120px;
+  left: -14%;
+  right: -14%;
+  top: -22%;
+  bottom: -16%;
   z-index: -1;
-  background: radial-gradient(50% 60% at 50% 100%, rgba(99, 102, 241, 0.45), transparent 70%);
-  filter: blur(20px);
+  pointer-events: none;
+  /* The window covers the inner ~78% of this ellipse; the light starts at its edge and falls off. */
+  background:
+    radial-gradient(closest-side, transparent 60%, rgba(99, 102, 241, 0.300) 74.0%, rgba(99, 102, 241, 0.281) 77.2%, rgba(99, 102, 241, 0.232) 80.5%, rgba(99, 102, 241, 0.169) 83.8%, rgba(99, 102, 241, 0.107) 87.0%, rgba(99, 102, 241, 0.058) 90.2%, rgba(99, 102, 241, 0.027) 93.5%, rgba(99, 102, 241, 0.009) 96.8%, rgba(99, 102, 241, 0.000) 100.0%),
+    radial-gradient(60% 40% at 50% 0%, rgba(99, 102, 241, 0.400) 0.0%, rgba(99, 102, 241, 0.375) 12.5%, rgba(99, 102, 241, 0.310) 25.0%, rgba(99, 102, 241, 0.225) 37.5%, rgba(99, 102, 241, 0.142) 50.0%, rgba(99, 102, 241, 0.078) 62.5%, rgba(99, 102, 241, 0.035) 75.0%, rgba(99, 102, 241, 0.012) 87.5%, rgba(99, 102, 241, 0.000) 100.0%);
 }
 
 .api-window {
@@ -131,10 +154,7 @@
   border: 1px solid var(--line-2);
   border-radius: 16px;
   background: linear-gradient(180deg, var(--panel-2), var(--panel) 30%);
-  box-shadow:
-    0 -20px 80px rgba(99, 102, 241, 0.18),
-    0 40px 120px -30px rgba(99, 102, 241, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
@@ -153,9 +173,10 @@
 }
 
 /*
- * Horizon: a huge dark ellipse behind the console whose rim is lit from behind.
- * The wrapper fades the rim out toward the sides; the ellipse itself carries the
- * light as box-shadows (a mask on the ellipse would clip them).
+ * Horizon: a huge dark ellipse (the "planet") behind the console, its rim lit from behind.
+ * The atmosphere is a second ellipse 1.3x the planet's size, painted with radial-gradients
+ * whose stops start at the planet's edge (76.92% of its radius) and fall off like a Gaussian.
+ * The wrapper fades everything out toward the sides.
  */
 .hero-horizon {
   --apex: 170px; /* how far above the console's bottom edge the rim peaks */
@@ -170,20 +191,34 @@
   mask-image: linear-gradient(90deg, transparent 4%, #000 34%, #000 66%, transparent 96%);
 }
 
-.hero-horizon::before {
+.hero-horizon::before,
+.hero-horizon::after {
   content: "";
   position: absolute;
   top: 200px;
-  left: 0;
+  left: 50%;
+  border-radius: 50%;
+}
+
+/* Atmosphere, centred on the planet: shifted up by (1.3 - 1) / (2 * 1.3) of its own height. */
+.hero-horizon::before {
+  width: 130%;
+  aspect-ratio: 1.8;
+  transform: translate(-50%, -11.538%);
+  background:
+    radial-gradient(closest-side, transparent 76.52%, rgba(221, 214, 254, 1.000) 76.9%, rgba(221, 214, 254, 0.775) 77.3%, rgba(221, 214, 254, 0.356) 77.7%, rgba(221, 214, 254, 0.089) 78.1%, rgba(221, 214, 254, 0.000) 78.5%),
+    radial-gradient(closest-side, transparent 76.52%, rgba(167, 139, 250, 0.750) 76.9%, rgba(167, 139, 250, 0.670) 77.8%, rgba(167, 139, 250, 0.476) 78.6%, rgba(167, 139, 250, 0.267) 79.4%, rgba(167, 139, 250, 0.115) 80.3%, rgba(167, 139, 250, 0.034) 81.1%, rgba(167, 139, 250, 0.000) 81.9%),
+    radial-gradient(closest-side, transparent 76.52%, rgba(129, 140, 248, 0.550) 76.9%, rgba(129, 140, 248, 0.516) 78.5%, rgba(129, 140, 248, 0.426) 80.2%, rgba(129, 140, 248, 0.309) 81.8%, rgba(129, 140, 248, 0.196) 83.4%, rgba(129, 140, 248, 0.107) 85.0%, rgba(129, 140, 248, 0.049) 86.7%, rgba(129, 140, 248, 0.016) 88.3%, rgba(129, 140, 248, 0.000) 89.9%),
+    radial-gradient(closest-side, transparent 76.52%, rgba(99, 102, 241, 0.380) 76.9%, rgba(99, 102, 241, 0.357) 79.8%, rgba(99, 102, 241, 0.294) 82.7%, rgba(99, 102, 241, 0.213) 85.6%, rgba(99, 102, 241, 0.135) 88.5%, rgba(99, 102, 241, 0.074) 91.3%, rgba(99, 102, 241, 0.034) 94.2%, rgba(99, 102, 241, 0.011) 97.1%, rgba(99, 102, 241, 0.000) 100.0%),
+    radial-gradient(closest-side, transparent 76.52%, rgba(56, 189, 248, 0.120) 76.9%, rgba(56, 189, 248, 0.113) 79.8%, rgba(56, 189, 248, 0.093) 82.7%, rgba(56, 189, 248, 0.067) 85.6%, rgba(56, 189, 248, 0.043) 88.5%, rgba(56, 189, 248, 0.023) 91.3%, rgba(56, 189, 248, 0.011) 94.2%, rgba(56, 189, 248, 0.003) 97.1%, rgba(56, 189, 248, 0.000) 100.0%);
+}
+
+/* Planet: covers the inner half of the atmosphere; its edge against the bright stop is the rim. */
+.hero-horizon::after {
   width: 100%;
   aspect-ratio: 1.8;
-  border-radius: 50%;
+  transform: translateX(-50%);
   background: var(--bg-base);
-  box-shadow:
-    0 -1px 0 rgba(196, 181, 253, 0.7),
-    0 -10px 30px rgba(167, 139, 250, 0.45),
-    0 -50px 120px rgba(99, 102, 241, 0.45),
-    0 -120px 200px rgba(56, 189, 248, 0.12);
 }
 
 /* ---------- Status bar (bottom of the console) ---------- */
@@ -201,6 +236,7 @@
 }
 
 .api-status-live {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -222,15 +258,35 @@
   height: 7px;
   border-radius: 50%;
   background: var(--mint);
-  box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.55), 0 0 8px rgba(110, 231, 183, 0.8);
-  animation: api-live 2.4s ease-out infinite;
+  box-shadow: 0 0 8px rgba(110, 231, 183, 0.8);
 }
 
-/* "Live" ping: a ring grows out of the dot and fades. */
+/* "Live" ping: a disc grows out of the dot and fades (transform + opacity only). */
+.api-status-live::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: var(--mint);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: api-live 2.4s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+
 @keyframes api-live {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
   70%,
   100% {
-    box-shadow: 0 0 0 6px rgba(110, 231, 183, 0), 0 0 8px rgba(110, 231, 183, 0.8);
+    transform: scale(2.8);
+    opacity: 0;
   }
 }
 
@@ -508,7 +564,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .api-status-live::before {
+  .api-status-live::after {
     animation: none;
   }
 
@@ -602,12 +658,12 @@
   position: absolute;
   top: 0;
   left: 50%;
-  width: min(960px, 100%);
-  height: 220px;
+  width: min(1040px, 100%);
   transform: translateX(-50%);
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(50% 100% at 50% 0, rgba(99, 102, 241, 0.26), rgba(167, 139, 250, 0.06) 55%, transparent 80%);
+  height: 260px;
+  background: radial-gradient(50% 100% at 50% 0, rgba(99, 102, 241, 0.280) 0.0%, rgba(99, 102, 241, 0.263) 12.5%, rgba(99, 102, 241, 0.217) 25.0%, rgba(99, 102, 241, 0.157) 37.5%, rgba(99, 102, 241, 0.100) 50.0%, rgba(99, 102, 241, 0.055) 62.5%, rgba(99, 102, 241, 0.025) 75.0%, rgba(99, 102, 241, 0.008) 87.5%, rgba(99, 102, 241, 0.000) 100.0%);
 }
 
 .hero-continue a {
@@ -638,54 +694,148 @@
 
 /*
  * Wave: a pulse of light leaves the console, splits around the node's ring and
- * rejoins below it. Dashes run on pathLength=100 paths: a 12-unit dash, moved
- * from just before the start (offset 12) to past the end (offset -100).
+ * rejoins below it. Built only from transform + opacity animations, so it runs
+ * on the compositor at the display's refresh rate without repainting.
+ *
+ * Path: 84px cable -> half ring (r = 19.5px, 61.26px of arc) -> 40px cable = 185.26px.
+ * The head moves at constant speed over the first 70% of the cycle; every keyframe
+ * below is that distance converted to time, so the hand-offs line up.
  */
 .hero-wave {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 104px; /* 44px of geometry + 30px each side so the halo isn't clipped by the mask */
+  width: 120px;
   height: 164px;
   transform: translateX(-50%);
-  overflow: visible;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent);
-  mask-image: linear-gradient(180deg, #000 70%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, #000 72%, transparent);
 }
 
-.hero-wave path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-dasharray: 12 200;
-  stroke-dashoffset: 12;
-  animation: hero-wave 3.2s cubic-bezier(0.45, 0.1, 0.55, 0.9) 1s infinite;
+.hero-wave i {
+  position: absolute;
+  display: block;
+  will-change: transform, opacity;
+  animation: 3.2s linear 1s infinite;
 }
 
-.hero-wave-core {
-  stroke: #f5f3ff;
-  stroke-width: 2;
+/* Straight stretches: a clip box per stretch, a comet sliding through it. */
+.wave-seg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
 }
 
-.hero-wave-glow {
-  stroke: var(--violet);
-  stroke-width: 7;
-  opacity: 0.9;
+.wave-seg-in {
+  top: 0;
+  height: 84px;
+  /* Fade out into the ring instead of cutting the comet flat where the ring takes over. */
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 14px), transparent);
 }
 
-/* Wide, soft halo: the light the wave throws around itself. */
-.hero-wave-haze {
-  stroke: #818cf8;
-  stroke-width: 18;
-  stroke-dasharray: 16 200;
-  opacity: 0.55;
+.wave-seg-out {
+  top: 124px;
+  height: 40px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12px);
+  mask-image: linear-gradient(180deg, transparent, #000 12px);
 }
 
-@keyframes hero-wave {
-  70%,
-  100% {
-    stroke-dashoffset: -100;
-  }
+.wave-comet {
+  top: 0;
+  left: 50%;
+  width: 52px;
+  height: 62px; /* 36px of tail + 26px below the head so its halo isn't cut flat */
+  margin-left: -26px;
+  background:
+    linear-gradient(180deg, transparent, rgba(196, 181, 253, 0.85) 70%, #fff) 50% 0 / 2px 36px no-repeat,
+    radial-gradient(26px 26px at 50% 36px, rgba(167, 139, 250, 0.600) 0.0%, rgba(167, 139, 250, 0.536) 16.7%, rgba(167, 139, 250, 0.381) 33.3%, rgba(167, 139, 250, 0.214) 50.0%, rgba(167, 139, 250, 0.092) 66.7%, rgba(167, 139, 250, 0.027) 83.3%, rgba(167, 139, 250, 0.000) 100.0%);
+}
+
+.wave-seg-in .wave-comet {
+  transform: translateY(-36px);
+  animation-name: wave-in;
+}
+
+.wave-seg-out .wave-comet {
+  transform: translateY(-181.26px);
+  animation-name: wave-out;
+}
+
+@keyframes wave-in {
+  0% { transform: translateY(-36px); }
+  70%, 100% { transform: translateY(149.26px); }
+}
+
+@keyframes wave-out {
+  0% { transform: translateY(-181.26px); }
+  83.60%, 100% { transform: translateY(40px); }
+}
+
+/*
+ * Ring: one 80px disc per side, centred on the node and clipped to its own half.
+ * A conic gradient puts the comet's head at the top; rotating the disc carries it
+ * down the ring. The left side is the right side mirrored.
+ */
+.wave-ring-side {
+  position: absolute;
+  top: 64px;
+  left: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+}
+
+.wave-ring-mirror {
+  transform: scaleX(-1);
+}
+
+.wave-ring-clip {
+  position: absolute;
+  top: 0;
+  left: 40px;
+  width: 40px;
+  height: 80px;
+  overflow: hidden;
+}
+
+.hero-wave .wave-ring {
+  top: 0;
+  left: -40px;
+  width: 80px;
+  height: 80px;
+  opacity: 0;
+  animation-name: wave-ring;
+}
+
+.wave-ring::before,
+.wave-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+/* Core: a ~2px band on the ring's radius (48.75% of the disc's). */
+.wave-ring::before {
+  background: conic-gradient(from -90deg, transparent, rgba(196, 181, 253, 0.85) 70deg, #fff 90deg, transparent 90.5deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 45.55%, #000 47.05%, #000 50.45%, transparent 51.95%);
+  mask-image: radial-gradient(closest-side, transparent 45.55%, #000 47.05%, #000 50.45%, transparent 51.95%);
+}
+
+/* Halo: a soft Gaussian band around the core, its head feathered. */
+.wave-ring::after {
+  background: conic-gradient(from -90deg, transparent, rgba(167, 139, 250, 0.45) 72deg, rgba(167, 139, 250, 0.7) 90deg, transparent 102deg);
+  -webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 20.75%, rgba(0, 0, 0, 0.060) 26.35%, rgba(0, 0, 0, 0.223) 31.95%, rgba(0, 0, 0, 0.518) 37.55%, rgba(0, 0, 0, 0.849) 43.15%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 54.75%, rgba(0, 0, 0, 0.518) 60.75%, rgba(0, 0, 0, 0.223) 66.75%, rgba(0, 0, 0, 0.060) 72.75%, rgba(0, 0, 0, 0.000) 78.75%);
+  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 20.75%, rgba(0, 0, 0, 0.060) 26.35%, rgba(0, 0, 0, 0.223) 31.95%, rgba(0, 0, 0, 0.518) 37.55%, rgba(0, 0, 0, 0.849) 43.15%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 54.75%, rgba(0, 0, 0, 0.518) 60.75%, rgba(0, 0, 0, 0.223) 66.75%, rgba(0, 0, 0, 0.060) 72.75%, rgba(0, 0, 0, 0.000) 78.75%);
+}
+
+@keyframes wave-ring {
+  0%, 31.69% { transform: rotate(0deg); opacity: 0; }
+  31.74% { transform: rotate(0deg); opacity: 1; }
+  66.46% { transform: rotate(270deg); opacity: 1; }
+  66.51%, 100% { transform: rotate(270deg); opacity: 0; }
 }
 
 .hero-continue-node {
@@ -699,7 +849,22 @@
   box-shadow:
     0 0 0 6px rgba(167, 139, 250, 0.07),
     0 0 28px rgba(167, 139, 250, 0.45);
+  position: relative;
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Extra light on the node while the wave runs around it: a static glow whose opacity animates. */
+.hero-continue-node::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 10px rgba(167, 139, 250, 0.12),
+    0 0 40px rgba(167, 139, 250, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
   animation: hero-node-lit 3.2s ease-in-out 1s infinite;
 }
 
@@ -711,22 +876,10 @@
     0 0 36px rgba(167, 139, 250, 0.7);
 }
 
-/* The ring lights up while the wave runs around it. */
+/* Peaks while the wave is on the ring (32%–55% of the cycle). */
 @keyframes hero-node-lit {
-  0%,
-  25%,
-  65%,
-  100% {
-    box-shadow:
-      0 0 0 6px rgba(167, 139, 250, 0.07),
-      0 0 28px rgba(167, 139, 250, 0.45);
-  }
-
-  42% {
-    box-shadow:
-      0 0 0 10px rgba(167, 139, 250, 0.14),
-      0 0 44px rgba(167, 139, 250, 0.85);
-  }
+  0%, 24%, 65%, 100% { opacity: 0; }
+  43% { opacity: 1; }
 }
 
 /* The section right after the hero starts where the connector ends. */
@@ -735,7 +888,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-continue-node {
+  .hero-continue-node::after {
     animation: none;
   }
 
