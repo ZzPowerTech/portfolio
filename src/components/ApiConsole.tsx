@@ -8,6 +8,18 @@ import hero720 from '../assets/hero-720.webp'
 
 const LINE_DELAY_MS = 35
 
+/*
+ * Avatar frame with a stepped notch cut out of the bottom-right corner.
+ * Units are relative to the image box (objectBoundingBox), so the shape scales
+ * with the preview column. Arc radii are tuned for the 200px column (img ≈ 164×219):
+ * 12px outer corners, 8px notch corners. The notch covers x ≥ 68%, y ≥ 88.5%.
+ */
+const AVATAR_FRAME_PATH =
+  'M0,0.0549 A0.0732,0.0549 0 0 1 0.0732,0 L0.9268,0 A0.0732,0.0549 0 0 1 1,0.0549 ' +
+  'L1,0.8484 A0.0488,0.0366 0 0 1 0.9512,0.885 L0.7288,0.885 ' +
+  'A0.0488,0.0366 0 0 0 0.68,0.9216 L0.68,0.9634 A0.0488,0.0366 0 0 1 0.6312,1 ' +
+  'L0.0732,1 A0.0732,0.0549 0 0 1 0,0.9451 Z'
+
 export function ApiConsole() {
   const { lang, t } = useLanguage()
   const endpoints = API_ENDPOINTS[lang]
@@ -107,14 +119,24 @@ export function ApiConsole() {
             {showPreview && (
               <figure className="api-preview">
                 <figcaption>{t.hero.console.preview}</figcaption>
-                <img
-                  src={hero720}
-                  srcSet={`${hero360} 360w, ${hero720} 720w`}
-                  sizes="200px"
-                  width={720}
-                  height={960}
-                  alt="Murillo Weiss Kist"
-                />
+                <div className="api-preview-frame">
+                  <img
+                    src={hero720}
+                    srcSet={`${hero360} 360w, ${hero720} 720w`}
+                    sizes="200px"
+                    width={720}
+                    height={960}
+                    alt="Murillo Weiss Kist"
+                  />
+                  <svg className="api-preview-outline" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                    <defs>
+                      <clipPath id="api-avatar-clip" clipPathUnits="objectBoundingBox">
+                        <path d={AVATAR_FRAME_PATH} />
+                      </clipPath>
+                    </defs>
+                    <path d={AVATAR_FRAME_PATH} />
+                  </svg>
+                </div>
                 <code>avatar_url</code>
               </figure>
             )}

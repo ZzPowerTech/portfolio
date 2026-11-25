@@ -350,18 +350,39 @@
   color: var(--text-muted);
 }
 
+.api-preview-frame {
+  position: relative;
+}
+
 .api-preview img {
+  display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
   object-position: 50% 0;
-  border-radius: 12px;
-  border: 1px solid var(--line-2);
+  /* Rounded corners + the bottom-right notch come from the SVG path in ApiConsole. */
+  clip-path: url(#api-avatar-clip);
   /* The photo is a cutout: give it a lit backdrop in the site's palette. */
   background:
     radial-gradient(70% 55% at 50% 38%, rgba(129, 140, 248, 0.45), transparent 75%),
     linear-gradient(180deg, #1a1f45, #0c1022);
+}
+
+.api-preview-outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.api-preview-outline > path {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
 .api-preview code {
