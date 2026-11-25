@@ -821,11 +821,12 @@
   mask-image: radial-gradient(closest-side, transparent 45.55%, #000 47.05%, #000 50.45%, transparent 51.95%);
 }
 
-/* Halo: a soft Gaussian band around the core, its head feathered. */
+/* Halo: a soft Gaussian band, mostly outside the ring so it doesn't light the node's face;
+   its head is feathered over 30deg so no straight edge sweeps across the node. */
 .wave-ring::after {
-  background: conic-gradient(from -90deg, transparent, rgba(167, 139, 250, 0.45) 72deg, rgba(167, 139, 250, 0.7) 90deg, transparent 102deg);
-  -webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 20.75%, rgba(0, 0, 0, 0.060) 26.35%, rgba(0, 0, 0, 0.223) 31.95%, rgba(0, 0, 0, 0.518) 37.55%, rgba(0, 0, 0, 0.849) 43.15%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 54.75%, rgba(0, 0, 0, 0.518) 60.75%, rgba(0, 0, 0, 0.223) 66.75%, rgba(0, 0, 0, 0.060) 72.75%, rgba(0, 0, 0, 0.000) 78.75%);
-  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 20.75%, rgba(0, 0, 0, 0.060) 26.35%, rgba(0, 0, 0, 0.223) 31.95%, rgba(0, 0, 0, 0.518) 37.55%, rgba(0, 0, 0, 0.849) 43.15%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 54.75%, rgba(0, 0, 0, 0.518) 60.75%, rgba(0, 0, 0, 0.223) 66.75%, rgba(0, 0, 0, 0.060) 72.75%, rgba(0, 0, 0, 0.000) 78.75%);
+  background: conic-gradient(from -90deg, transparent, rgba(167, 139, 250, 0.42) 72deg, rgba(167, 139, 250, 0.6) 90deg, rgba(167, 139, 250, 0.2) 106deg, transparent 120deg);
+  -webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 42.75%, rgba(0, 0, 0, 0.060) 43.95%, rgba(0, 0, 0, 0.223) 45.15%, rgba(0, 0, 0, 0.518) 46.35%, rgba(0, 0, 0, 0.849) 47.55%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 55.55%, rgba(0, 0, 0, 0.518) 62.35%, rgba(0, 0, 0, 0.223) 69.15%, rgba(0, 0, 0, 0.060) 75.95%, rgba(0, 0, 0, 0.000) 82.75%);
+  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.000) 42.75%, rgba(0, 0, 0, 0.060) 43.95%, rgba(0, 0, 0, 0.223) 45.15%, rgba(0, 0, 0, 0.518) 46.35%, rgba(0, 0, 0, 0.849) 47.55%, rgba(0, 0, 0, 1.000) 48.75%, rgba(0, 0, 0, 0.849) 55.55%, rgba(0, 0, 0, 0.518) 62.35%, rgba(0, 0, 0, 0.223) 69.15%, rgba(0, 0, 0, 0.060) 75.95%, rgba(0, 0, 0, 0.000) 82.75%);
 }
 
 @keyframes wave-ring {
@@ -843,24 +844,35 @@
   border-radius: 50%;
   border: 1px solid rgba(167, 139, 250, 0.55);
   background: radial-gradient(circle at 50% 35%, #1d2150, var(--panel));
-  box-shadow:
-    0 0 0 6px rgba(167, 139, 250, 0.07),
-    0 0 28px rgba(167, 139, 250, 0.45);
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, border-color 0.2s;
 }
 
-/* Extra light on the node while the wave runs around it: a static glow whose opacity animates. */
+/*
+ * Node light: two halo discs behind the node (120px, i.e. 40px around it), painted
+ * with a radial-gradient that starts at the node's edge (33.3% of the halo radius)
+ * and eases to zero (zero slope too) at the disc's edge. No box-shadow spread: that draws a solid ring with a
+ * hard outer edge. ::before is the resting glow, ::after the extra light while the wave
+ * passes (only its opacity animates).
+ */
+.hero-continue-node::before,
 .hero-continue-node::after {
   content: "";
   position: absolute;
-  inset: -1px;
+  inset: -41px;
+  z-index: -1;
   border-radius: 50%;
-  box-shadow:
-    0 0 0 10px rgba(167, 139, 250, 0.12),
-    0 0 40px rgba(167, 139, 250, 0.7);
-  opacity: 0;
   pointer-events: none;
+}
+
+.hero-continue-node::before {
+  background: radial-gradient(closest-side, rgba(167, 139, 250, 0.300) 33.3%, rgba(167, 139, 250, 0.285) 39.4%, rgba(167, 139, 250, 0.245) 45.5%, rgba(167, 139, 250, 0.193) 51.5%, rgba(167, 139, 250, 0.137) 57.6%, rgba(167, 139, 250, 0.086) 63.6%, rgba(167, 139, 250, 0.047) 69.7%, rgba(167, 139, 250, 0.021) 75.8%, rgba(167, 139, 250, 0.007) 81.8%, rgba(167, 139, 250, 0.001) 87.9%, rgba(167, 139, 250, 0.000) 93.9%, rgba(167, 139, 250, 0.000) 100.0%);
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.hero-continue-node::after {
+  background: radial-gradient(closest-side, rgba(167, 139, 250, 0.380) 33.3%, rgba(167, 139, 250, 0.364) 39.4%, rgba(167, 139, 250, 0.322) 45.5%, rgba(167, 139, 250, 0.264) 51.5%, rgba(167, 139, 250, 0.200) 57.6%, rgba(167, 139, 250, 0.137) 63.6%, rgba(167, 139, 250, 0.084) 69.7%, rgba(167, 139, 250, 0.044) 75.8%, rgba(167, 139, 250, 0.018) 81.8%, rgba(167, 139, 250, 0.005) 87.9%, rgba(167, 139, 250, 0.000) 93.9%, rgba(167, 139, 250, 0.000) 100.0%);
+  opacity: 0;
   will-change: opacity;
   animation: hero-node-lit 3.2s ease-in-out 1s infinite;
 }
@@ -868,9 +880,12 @@
 .hero-continue a:hover .hero-continue-node,
 .hero-continue a:focus-visible .hero-continue-node {
   transform: translateY(2px);
-  box-shadow:
-    0 0 0 8px rgba(167, 139, 250, 0.12),
-    0 0 36px rgba(167, 139, 250, 0.7);
+  border-color: rgba(196, 181, 253, 0.8);
+}
+
+.hero-continue a:hover .hero-continue-node::before,
+.hero-continue a:focus-visible .hero-continue-node::before {
+  transform: scale(1.15);
 }
 
 /* Peaks while the wave is on the ring (32%–55% of the cycle). */
