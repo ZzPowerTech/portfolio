@@ -2,6 +2,7 @@
 import './App.css'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
+import { About } from './components/About'
 import { Projects } from './components/Projects'
 import { Repos } from './components/Repos'
 import { Footer } from './components/Footer'
@@ -12,6 +13,7 @@ function App() {
       <Header />
       <main>
         <Hero />
+        <About />
         <Projects />
         <Repos />
       </main>

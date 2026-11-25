@@ -1,0 +1,46 @@
+# Murillo Weiss Kist
+
+> Murillo Weiss Kist é engenheiro de software backend do Paraná, Brasil. Trabalha com Java, Spring Boot, JavaScript, TypeScript, NestJS, PostgreSQL e IA. É cofundador da GWNext e desenvolvedor backend da AgroConIA.
+
+Também grafado como "Murilo Weiss Kist". Usuário no GitHub: ZzPowerTech. Última atualização: 2026-11-25.
+
+## Atual
+
+- [AgroConIA](https://www.agroconia.com.br/): plataforma da GWNext para a reforma tributária do agro. Calcula o IBS e a CBS de cada produto na nota do produtor rural (NF-e 4.00), avisa o que conferir antes de emitir e envia a nota para o escritório de contabilidade aprovar. Inclui a Ceres, assistente de IA que responde citando a EC 132/2023 e a LC 214/2025. Papel: cofundador e desenvolvedor backend.
+
+## Experiência anterior
+
+- AusTV Network (jun/2025 a out/2026): rede de servidores Minecraft, encerrada em outubro de 2026. Head de Games e líder técnico de uma equipe de 15 pessoas; plugins Java (Paper/Spigot), APIs REST em NestJS e painel de vendas orientado a eventos. A AusTV Store, loja da rede, também foi encerrada.
+- [AgroPainel](https://github.com/SupersonicTeam/HackThon-2026): painel financeiro e fiscal para produtores rurais, feito no Hackathon Show Rural Coopavel 2026.
+- [Intercom Sul 2026](https://github.com/ZzPowerTech/Intercom-BackEnd-): backend em NestJS do portal do congresso acadêmico, sediado no Centro Universitário FAG, em Toledo-PR.
+
+## Formação e conquistas
+
+- Bacharelado em Engenharia de Software, Centro Universitário FAG (2023 a 2026).
+- 1º lugar no Inovathon 2023 (FAG Cascavel).
+- Top 5 no Hackathon Show Rural Coopavel 2025.
+
+## Código aberto
+
+- [CommandOverride](https://github.com/ZzPowerTech/CommandOverride): plugin Paper que resolve conflitos de alias entre plugins por configuração YAML.
+- [EngSearch](https://github.com/ZzPowerTech/EngSearch): robô de prospecção para venda de elevadores a construtoras.
+- [estacionamento-vision](https://github.com/ZzPowerTech/estacionamento-vision): detecção de vagas de estacionamento com YOLO + CNN.
+- [api-discord-top-donators](https://github.com/ZzPowerTech/api-discord-top-donators): API NestJS que publica um ranking mensal no Discord.
+- [centralCartAPIPlugin](https://github.com/ZzPowerTech/centralCartAPIPlugin): plugin Minecraft integrado à API da CentralCart.
+
+## Dados estruturados (JSON)
+
+Os mesmos fatos desta página, em JSON público (CORS liberado):
+
+- [Perfil](https://portfolio.weissmurillo.de/v1/perfil) · [Profile (EN)](https://portfolio.weissmurillo.de/v1/profile)
+- [Agora](https://portfolio.weissmurillo.de/v1/agora) · [Now (EN)](https://portfolio.weissmurillo.de/v1/now)
+- [Projetos](https://portfolio.weissmurillo.de/v1/projetos) · [Projects (EN)](https://portfolio.weissmurillo.de/v1/projects)
+- [Stack](https://portfolio.weissmurillo.de/v1/stack)
+- [Repositórios](https://portfolio.weissmurillo.de/v1/repositorios) · [Repositories (EN)](https://portfolio.weissmurillo.de/v1/repositories)
+- [Contato](https://portfolio.weissmurillo.de/v1/contato) · [Contact (EN)](https://portfolio.weissmurillo.de/v1/contact)
+
+## Contato
+
+- [GitHub](https://github.com/ZzPowerTech)
+- [LinkedIn](https://www.linkedin.com/in/murillo-weiss-kist-6aa2a1279/)
+- [Portfólio](https://portfolio.weissmurillo.de/)

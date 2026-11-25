@@ -1,0 +1,5 @@
+# Cloudflare's managed robots.txt rules (AI-training crawlers) are prepended to this file.
+User-agent: *
+Allow: /
+
+Sitemap: https://portfolio.weissmurillo.de/sitemap.xml

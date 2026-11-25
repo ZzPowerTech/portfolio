@@ -1,6 +1,7 @@
 // src/components/RepoCard.tsx
 import { motion } from 'framer-motion'
-import type { GitHubRepo } from '../hooks/useGitHubRepos'
+import type { Repo } from '../data/repos'
+import type { Language } from '../data/translations'
 
 const LANG_COLORS: Record<string, string> = {
   Java: '#f89820',
@@ -11,50 +12,43 @@ const LANG_COLORS: Record<string, string> = {
 }
 
 interface RepoCardProps {
-  repo: GitHubRepo
+  repo: Repo
+  lang: Language
 }
 
-export function RepoCard({ repo }: RepoCardProps) {
+export function RepoCard({ repo, lang }: RepoCardProps) {
   return (
     <motion.a
-      href={repo.html_url}
+      href={repo.url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={repo.name}
       whileHover={{ y: -3, borderColor: 'rgba(124,58,237,0.35)' }}
       transition={{ duration: 0.2 }}
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
-        borderRadius: 10, padding: 16,
+        borderRadius: 10, padding: 16, height: '100%',
         display: 'flex', flexDirection: 'column', gap: 8,
         textDecoration: 'none', cursor: 'pointer',
         position: 'relative',
       }}
     >
-      <span style={{ position: 'absolute', top: 12, right: 12, color: 'rgba(124,58,237,0.25)', fontSize: 11 }}>↗</span>
+      <span aria-hidden="true" style={{ position: 'absolute', top: 12, right: 12, color: 'rgba(168,85,247,0.5)', fontSize: 11 }}>↗</span>
 
-      <p style={{ color: 'var(--text-primary)', fontSize: 12, fontWeight: 600, paddingRight: 18 }}>
+      <h3 style={{ color: 'var(--text-primary)', fontSize: 13, fontWeight: 600, paddingRight: 18 }}>
         {repo.name}
-      </p>
-      <p style={{ color: 'var(--text-muted)', fontSize: 10, lineHeight: 1.5, flex: 1 }}>
-        {repo.description ?? '—'}
+      </h3>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: 1.55, flex: 1 }}>
+        {repo.desc[lang]}
       </p>
 
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        {repo.language && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{
-              width: 8, height: 8, borderRadius: '50%', display: 'inline-block',
-              background: LANG_COLORS[repo.language] ?? '#94a3b8',
-            }} />
-            <span style={{ color: 'var(--text-secondary)', fontSize: 10 }}>{repo.language}</span>
-          </span>
-        )}
-        {repo.stargazers_count > 0 && (
-          <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>★ {repo.stargazers_count}</span>
-        )}
-      </div>
+      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span aria-hidden="true" style={{
+          width: 8, height: 8, borderRadius: '50%', display: 'inline-block',
+          background: LANG_COLORS[repo.language] ?? '#94a3b8',
+        }} />
+        <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{repo.language}</span>
+      </span>
     </motion.a>
   )
 }
