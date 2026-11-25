@@ -39,6 +39,14 @@ describe('Hero', () => {
     expect(screen.getByText(/API pública · 5 endpoints · somente leitura/)).toBeInTheDocument()
   })
 
+  it('keeps the CSS lighting when the browser cannot render the moving light', () => {
+    // jsdom has no OffscreenCanvas/WebGL2: the WebGL layer must stay out of the way.
+    const { container } = render(<Hero />, { wrapper: Wrapper })
+    const hero = container.querySelector('.hero') as HTMLElement
+    expect(hero.dataset.light).toBeUndefined()
+    expect(container.querySelector('.hero-light')).toBeNull()
+  })
+
   it('switches the response when another endpoint is clicked', async () => {
     render(<Hero />, { wrapper: Wrapper })
     await userEvent.click(screen.getByRole('tab', { name: /\/agora/ }))

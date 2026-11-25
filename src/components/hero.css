@@ -21,7 +21,7 @@
   background:
     radial-gradient(70% 30% at 50% 58%, rgba(99, 102, 241, 0.340) 0.0%, rgba(99, 102, 241, 0.323) 9.1%, rgba(99, 102, 241, 0.278) 18.2%, rgba(99, 102, 241, 0.218) 27.3%, rgba(99, 102, 241, 0.155) 36.4%, rgba(99, 102, 241, 0.098) 45.5%, rgba(99, 102, 241, 0.054) 54.5%, rgba(99, 102, 241, 0.024) 63.6%, rgba(99, 102, 241, 0.008) 72.7%, rgba(99, 102, 241, 0.002) 81.8%, rgba(99, 102, 241, 0.000) 90.9%, rgba(99, 102, 241, 0.000) 100.0%),
     radial-gradient(40% 16% at 30% 72%, rgba(167, 139, 250, 0.240) 0.0%, rgba(167, 139, 250, 0.228) 9.1%, rgba(167, 139, 250, 0.196) 18.2%, rgba(167, 139, 250, 0.154) 27.3%, rgba(167, 139, 250, 0.109) 36.4%, rgba(167, 139, 250, 0.069) 45.5%, rgba(167, 139, 250, 0.038) 54.5%, rgba(167, 139, 250, 0.017) 63.6%, rgba(167, 139, 250, 0.006) 72.7%, rgba(167, 139, 250, 0.001) 81.8%, rgba(167, 139, 250, 0.000) 90.9%, rgba(167, 139, 250, 0.000) 100.0%),
-    radial-gradient(40% 14% at 72% 74%, rgba(56, 189, 248, 0.130) 0.0%, rgba(56, 189, 248, 0.123) 9.1%, rgba(56, 189, 248, 0.106) 18.2%, rgba(56, 189, 248, 0.083) 27.3%, rgba(56, 189, 248, 0.059) 36.4%, rgba(56, 189, 248, 0.037) 45.5%, rgba(56, 189, 248, 0.021) 54.5%, rgba(56, 189, 248, 0.009) 63.6%, rgba(56, 189, 248, 0.003) 72.7%, rgba(56, 189, 248, 0.001) 81.8%, rgba(56, 189, 248, 0.000) 90.9%, rgba(56, 189, 248, 0.000) 100.0%);
+    radial-gradient(40% 14% at 72% 74%, rgba(118, 128, 246, 0.140) 0.0%, rgba(118, 128, 246, 0.133) 9.1%, rgba(118, 128, 246, 0.115) 18.2%, rgba(118, 128, 246, 0.090) 27.3%, rgba(118, 128, 246, 0.064) 36.4%, rgba(118, 128, 246, 0.040) 45.5%, rgba(118, 128, 246, 0.022) 54.5%, rgba(118, 128, 246, 0.010) 63.6%, rgba(118, 128, 246, 0.003) 72.7%, rgba(118, 128, 246, 0.001) 81.8%, rgba(118, 128, 246, 0.000) 90.9%, rgba(118, 128, 246, 0.000) 100.0%);
 }
 
 /*
@@ -36,6 +36,29 @@
  * - Animations only touch transform and opacity, so they run on the compositor
  *   at the display's refresh rate without repainting.
  */
+
+/*
+ * Moving light (WebGL2 in a worker, see heroLight/). The CSS lights above and below are the
+ * baseline; once the shader has drawn its first frame the hero gets data-light="gl", and in
+ * that same style pass the canvas appears and the CSS light layers step aside. The horizon
+ * box stays in layout (visibility, not display) because the shader measures it.
+ */
+.hero-light {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.hero[data-light="gl"] .hero-light { visibility: visible; }
+.hero[data-light="gl"]::before,
+.hero[data-light="gl"] .hero-stage::after,
+.hero[data-light="gl"] .hero-continue::before { display: none; }
+.hero[data-light="gl"] .hero-horizon { visibility: hidden; }
+
 
 .hero-pill {
   display: inline-flex;
@@ -187,10 +210,11 @@
   height: 1400px;
   z-index: -1;
   pointer-events: none;
-  /* Sides fade out. Only light is masked here (no opaque layer), and the light is
+  /* Sides fade out along an eased (smoothstep) curve: no kink where the fade starts or ends.
+     Only light is masked here (no opaque layer), and the light is
      already ~0 near the hero's bottom edge, so the mask never ends on a visible value. */
-  -webkit-mask-image: linear-gradient(90deg, transparent 4%, #000 34%, #000 66%, transparent 96%);
-  mask-image: linear-gradient(90deg, transparent 4%, #000 34%, #000 66%, transparent 96%);
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.000) 0.0%, rgba(0, 0, 0, 0.020) 3.3%, rgba(0, 0, 0, 0.074) 6.7%, rgba(0, 0, 0, 0.156) 10.0%, rgba(0, 0, 0, 0.259) 13.3%, rgba(0, 0, 0, 0.376) 16.7%, rgba(0, 0, 0, 0.500) 20.0%, rgba(0, 0, 0, 0.624) 23.3%, rgba(0, 0, 0, 0.741) 26.7%, rgba(0, 0, 0, 0.844) 30.0%, rgba(0, 0, 0, 0.926) 33.3%, rgba(0, 0, 0, 0.980) 36.7%, rgba(0, 0, 0, 1.000) 40.0%, rgba(0, 0, 0, 1.000) 60.0%, rgba(0, 0, 0, 0.980) 63.3%, rgba(0, 0, 0, 0.926) 66.7%, rgba(0, 0, 0, 0.844) 70.0%, rgba(0, 0, 0, 0.741) 73.3%, rgba(0, 0, 0, 0.624) 76.7%, rgba(0, 0, 0, 0.500) 80.0%, rgba(0, 0, 0, 0.376) 83.3%, rgba(0, 0, 0, 0.259) 86.7%, rgba(0, 0, 0, 0.156) 90.0%, rgba(0, 0, 0, 0.074) 93.3%, rgba(0, 0, 0, 0.020) 96.7%, rgba(0, 0, 0, 0.000) 100.0%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.000) 0.0%, rgba(0, 0, 0, 0.020) 3.3%, rgba(0, 0, 0, 0.074) 6.7%, rgba(0, 0, 0, 0.156) 10.0%, rgba(0, 0, 0, 0.259) 13.3%, rgba(0, 0, 0, 0.376) 16.7%, rgba(0, 0, 0, 0.500) 20.0%, rgba(0, 0, 0, 0.624) 23.3%, rgba(0, 0, 0, 0.741) 26.7%, rgba(0, 0, 0, 0.844) 30.0%, rgba(0, 0, 0, 0.926) 33.3%, rgba(0, 0, 0, 0.980) 36.7%, rgba(0, 0, 0, 1.000) 40.0%, rgba(0, 0, 0, 1.000) 60.0%, rgba(0, 0, 0, 0.980) 63.3%, rgba(0, 0, 0, 0.926) 66.7%, rgba(0, 0, 0, 0.844) 70.0%, rgba(0, 0, 0, 0.741) 73.3%, rgba(0, 0, 0, 0.624) 76.7%, rgba(0, 0, 0, 0.500) 80.0%, rgba(0, 0, 0, 0.376) 83.3%, rgba(0, 0, 0, 0.259) 86.7%, rgba(0, 0, 0, 0.156) 90.0%, rgba(0, 0, 0, 0.074) 93.3%, rgba(0, 0, 0, 0.020) 96.7%, rgba(0, 0, 0, 0.000) 100.0%);
 }
 
 .hero-horizon::before {
@@ -211,7 +235,7 @@
     radial-gradient(closest-side, transparent 76.52%, rgba(167, 139, 250, 0.750) 76.92%, rgba(167, 139, 250, 0.530) 77.67%, rgba(167, 139, 250, 0.355) 78.42%, rgba(167, 139, 250, 0.221) 79.17%, rgba(167, 139, 250, 0.124) 79.92%, rgba(167, 139, 250, 0.059) 80.67%, rgba(167, 139, 250, 0.020) 81.42%, rgba(167, 139, 250, 0.003) 82.17%, rgba(167, 139, 250, 0.000) 82.92%),
     radial-gradient(closest-side, transparent 76.52%, rgba(129, 140, 248, 0.500) 76.92%, rgba(129, 140, 248, 0.398) 78.29%, rgba(129, 140, 248, 0.309) 79.65%, rgba(129, 140, 248, 0.233) 81.01%, rgba(129, 140, 248, 0.169) 82.38%, rgba(129, 140, 248, 0.117) 83.74%, rgba(129, 140, 248, 0.075) 85.10%, rgba(129, 140, 248, 0.044) 86.47%, rgba(129, 140, 248, 0.022) 87.83%, rgba(129, 140, 248, 0.008) 89.20%, rgba(129, 140, 248, 0.002) 90.56%, rgba(129, 140, 248, 0.000) 91.92%),
     radial-gradient(closest-side, transparent 76.52%, rgba(99, 102, 241, 0.360) 76.9%, rgba(99, 102, 241, 0.343) 79.0%, rgba(99, 102, 241, 0.300) 81.1%, rgba(99, 102, 241, 0.241) 83.2%, rgba(99, 102, 241, 0.176) 85.3%, rgba(99, 102, 241, 0.116) 87.4%, rgba(99, 102, 241, 0.067) 89.5%, rgba(99, 102, 241, 0.033) 91.6%, rgba(99, 102, 241, 0.012) 93.7%, rgba(99, 102, 241, 0.003) 95.8%, rgba(99, 102, 241, 0.000) 97.9%, rgba(99, 102, 241, 0.000) 100.0%),
-    radial-gradient(closest-side, transparent 76.52%, rgba(56, 189, 248, 0.110) 76.9%, rgba(56, 189, 248, 0.105) 79.0%, rgba(56, 189, 248, 0.092) 81.1%, rgba(56, 189, 248, 0.074) 83.2%, rgba(56, 189, 248, 0.054) 85.3%, rgba(56, 189, 248, 0.035) 87.4%, rgba(56, 189, 248, 0.021) 89.5%, rgba(56, 189, 248, 0.010) 91.6%, rgba(56, 189, 248, 0.004) 93.7%, rgba(56, 189, 248, 0.001) 95.8%, rgba(56, 189, 248, 0.000) 97.9%, rgba(56, 189, 248, 0.000) 100.0%);
+    radial-gradient(closest-side, transparent 76.52%, rgba(118, 128, 246, 0.160) 76.9%, rgba(118, 128, 246, 0.154) 79.0%, rgba(118, 128, 246, 0.138) 81.1%, rgba(118, 128, 246, 0.116) 83.2%, rgba(118, 128, 246, 0.090) 85.3%, rgba(118, 128, 246, 0.065) 87.4%, rgba(118, 128, 246, 0.042) 89.5%, rgba(118, 128, 246, 0.023) 91.6%, rgba(118, 128, 246, 0.011) 93.7%, rgba(118, 128, 246, 0.003) 95.8%, rgba(118, 128, 246, 0.000) 97.9%, rgba(118, 128, 246, 0.000) 100.0%);
 }
 
 /* ---------- Status bar (bottom of the console) ---------- */
