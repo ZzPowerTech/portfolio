@@ -10,8 +10,23 @@ export interface TimelineItem {
   detail: string
 }
 
+export interface SkillGroup {
+  label: string
+  items: string[]
+}
+
+/** Illustrative invoice shown next to AgroConIA (fictitious data, as on its landing page). */
+export interface InvoiceMock {
+  caption: string
+  title: string
+  draft: string
+  items: { name: string; rule: string; flag?: boolean }[]
+  check: string
+  action: string
+}
+
 export interface Translations {
-  nav: { about: string; projects: string; repos: string }
+  nav: { about: string; projects: string; repos: string; contact: string }
   hero: {
     continue: string
     pill: string
@@ -38,7 +53,7 @@ export interface Translations {
     achievementsTitle: string
     achievements: string[]
     skillsTitle: string
-    skills: string[]
+    skillGroups: SkillGroup[]
   }
   projects: {
     label: string
@@ -48,36 +63,33 @@ export interface Translations {
     pastSubtitle: string
     status: { live: string; ended: string; completed: string }
     visit: string
+    invoice: InvoiceMock
   }
   repos: {
     label: string
     title: string
     subtitle: string
   }
-  footer: { copyright: string }
+  footer: {
+    label: string
+    title: string
+    sub: string
+    resume: string
+    apiNote: string
+    copyright: string
+  }
 }
 
-const SKILLS = [
-  'Java',
-  'Spring Boot',
-  'TypeScript',
-  'JavaScript',
-  'NestJS',
-  'Node.js',
-  'React',
-  'Next.js',
-  'PostgreSQL',
-  'MySQL',
-  'Python',
-  'APIs REST',
-  'Docker',
-  'Git',
-  'Paper/Spigot',
-]
+const STACK = {
+  backend: ['Java', 'Spring Boot', 'NestJS', 'Node.js', 'APIs REST', 'Paper/Spigot'],
+  frontend: ['TypeScript', 'JavaScript', 'React', 'Next.js'],
+  data: ['PostgreSQL', 'MySQL', 'Docker', 'Git'],
+  ai: ['LLMs', 'Python', 'YOLO'],
+}
 
 export const translations: Record<Language, Translations> = {
   pt: {
-    nav: { about: 'Sobre', projects: 'Projetos', repos: 'Código' },
+    nav: { about: 'Sobre', projects: 'Projetos', repos: 'Código', contact: 'Contato' },
     hero: {
       continue: 'Continuar para Sobre',
       pill: 'cofundador da GWNext',
@@ -131,7 +143,12 @@ export const translations: Record<Language, Translations> = {
         'Hackathon Show Rural Coopavel 2026: AgroPainel, solução com IA para a reforma tributária',
       ],
       skillsTitle: 'Tecnologias',
-      skills: SKILLS,
+      skillGroups: [
+        { label: 'Backend', items: STACK.backend },
+        { label: 'Frontend', items: STACK.frontend },
+        { label: 'Dados e infra', items: STACK.data },
+        { label: 'IA', items: STACK.ai },
+      ],
     },
     projects: {
       label: '/v1/projetos',
@@ -139,18 +156,37 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'O que estou construindo agora',
       pastTitle: 'Projetos anteriores',
       pastSubtitle: 'Trabalhos encerrados ou concluídos',
-      status: { live: 'NO AR', ended: 'ENCERRADO', completed: 'CONCLUÍDO' },
+      status: { live: 'No ar', ended: 'Encerrado', completed: 'Concluído' },
       visit: 'Abrir',
+      invoice: {
+        caption: 'Ilustração com dados fictícios',
+        title: 'Nota de venda nº 1.024',
+        draft: 'NF-e 4.00 · rascunho',
+        items: [
+          { name: 'Soja em grão', rule: 'Redução de 60%' },
+          { name: 'Leite UHT integral', rule: 'Alíquota zero' },
+          { name: 'Frete até o armazém', rule: 'Parece serviço: confira', flag: true },
+        ],
+        check: '1 ponto para conferir antes de emitir',
+        action: 'Enviar para o escritório aprovar',
+      },
     },
     repos: {
       label: '/v1/repositorios',
       title: 'Repositórios públicos',
       subtitle: 'Seleção do meu GitHub',
     },
-    footer: { copyright: '© 2026 Murillo Weiss Kist · portfolio.weissmurillo.de' },
+    footer: {
+      label: '/v1/contato',
+      title: 'Vamos conversar',
+      sub: 'Backend, regras fiscais, IA aplicada ou uma ideia que precisa sair do papel. O caminho mais rápido é o LinkedIn.',
+      resume: 'Baixar currículo',
+      apiNote: 'Este site também responde em JSON:',
+      copyright: '© 2026 Murillo Weiss Kist',
+    },
   },
   en: {
-    nav: { about: 'About', projects: 'Projects', repos: 'Code' },
+    nav: { about: 'About', projects: 'Projects', repos: 'Code', contact: 'Contact' },
     hero: {
       continue: 'Continue to About',
       pill: 'co-founder of GWNext',
@@ -204,7 +240,12 @@ export const translations: Record<Language, Translations> = {
         'Show Rural Coopavel Hackathon 2026: AgroPainel, an AI solution for the tax reform',
       ],
       skillsTitle: 'Technologies',
-      skills: SKILLS,
+      skillGroups: [
+        { label: 'Backend', items: STACK.backend },
+        { label: 'Frontend', items: STACK.frontend },
+        { label: 'Data and infra', items: STACK.data },
+        { label: 'AI', items: STACK.ai },
+      ],
     },
     projects: {
       label: '/v1/projects',
@@ -212,14 +253,33 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'What I am building now',
       pastTitle: 'Past projects',
       pastSubtitle: 'Finished or shut-down work',
-      status: { live: 'LIVE', ended: 'SHUT DOWN', completed: 'COMPLETED' },
+      status: { live: 'Live', ended: 'Shut down', completed: 'Completed' },
       visit: 'Open',
+      invoice: {
+        caption: 'Illustration with fictitious data',
+        title: 'Sales invoice #1,024',
+        draft: 'NF-e 4.00 · draft',
+        items: [
+          { name: 'Soybeans', rule: '60% reduction' },
+          { name: 'UHT whole milk', rule: 'Zero rate' },
+          { name: 'Freight to warehouse', rule: 'Looks like a service: check', flag: true },
+        ],
+        check: '1 item to check before issuing',
+        action: 'Send to the accountant for approval',
+      },
     },
     repos: {
       label: '/v1/repositories',
       title: 'Public repositories',
       subtitle: 'A selection from my GitHub',
     },
-    footer: { copyright: '© 2026 Murillo Weiss Kist · portfolio.weissmurillo.de' },
+    footer: {
+      label: '/v1/contact',
+      title: "Let's talk",
+      sub: 'Backend, tax rules, applied AI or an idea that needs to ship. LinkedIn is the fastest way to reach me.',
+      resume: 'Download resume',
+      apiNote: 'This site also answers in JSON:',
+      copyright: '© 2026 Murillo Weiss Kist',
+    },
   },
 }

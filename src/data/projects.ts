@@ -11,7 +11,6 @@ export interface Project {
   desc: Localized
   /** Omitted when there is no public page left to visit. */
   url?: string
-  emoji: string
   tags: string[]
   status: ProjectStatus
 }
@@ -30,7 +29,6 @@ export const CURRENT_PROJECTS: Project[] = [
       en: "GWNext's platform for Brazil's agribusiness tax reform. It calculates IBS and CBS for each product on the farmer's invoice, flags what to check before issuing it, and routes the invoice to the accounting firm for approval. It includes Ceres, an AI assistant that answers by citing the article of law (EC 132/2023 and LC 214/2025).",
     },
     url: 'https://www.agroconia.com.br/',
-    emoji: '🌾',
     tags: ['Backend', 'IA', 'NF-e 4.00', 'IBS/CBS'],
     status: 'live',
   },
@@ -49,7 +47,6 @@ export const PAST_PROJECTS: Project[] = [
       pt: 'Rede de servidores Minecraft com mais de 200 jogadores e economia virtual. Liderei uma equipe de 15 pessoas, criei plugins em Java (Paper/Spigot), APIs REST em NestJS e um painel de vendas orientado a eventos. Encerrada em outubro de 2026.',
       en: 'Minecraft server network with 200+ players and a virtual economy. I led a 15-person team and built Java plugins (Paper/Spigot), NestJS REST APIs and an event-driven sales dashboard. Shut down in October 2026.',
     },
-    emoji: '⚡',
     tags: ['Java', 'Paper', 'NestJS', 'PostgreSQL'],
     status: 'ended',
   },
@@ -60,7 +57,6 @@ export const PAST_PROJECTS: Project[] = [
       pt: 'Loja de itens e ranks da AusTV, com integração de pagamentos, painel administrativo e ranking mensal de apoiadores publicado no Discord. Encerrada junto com a rede.',
       en: "AusTV's item and rank store, with payment integration, an admin dashboard and a monthly supporter ranking posted to Discord. Shut down with the network.",
     },
-    emoji: '🛒',
     tags: ['Next.js', 'NestJS', 'PostgreSQL'],
     status: 'ended',
   },
@@ -74,7 +70,6 @@ export const PAST_PROJECTS: Project[] = [
       en: 'Financial and tax dashboard for farmers, with cash flow, tax-reform calculations, invoicing and accountant review. Built at the Show Rural Coopavel 2026 hackathon.',
     },
     url: 'https://github.com/SupersonicTeam/HackThon-2026',
-    emoji: '🏆',
     tags: ['TypeScript', 'IA', 'Hackathon'],
     status: 'completed',
   },
@@ -88,7 +83,6 @@ export const PAST_PROJECTS: Project[] = [
       en: 'API for the Intercom Sul 2026 portal, an academic Communication conference hosted at Centro Universitário FAG in Toledo, Brazil: content, schedule and registrations.',
     },
     url: 'https://github.com/ZzPowerTech/Intercom-BackEnd-',
-    emoji: '🎓',
     tags: ['NestJS', 'TypeScript', 'React'],
     status: 'completed',
   },

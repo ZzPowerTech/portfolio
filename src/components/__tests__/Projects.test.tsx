@@ -1,44 +1,45 @@
 // src/components/__tests__/Projects.test.tsx
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { LanguageProvider } from '../../contexts/LanguageContext'
+import { PAST_PROJECTS } from '../../data/projects'
 import { Projects } from '../Projects'
-
-vi.mock('framer-motion', () => ({
-  motion: {
-    section: ({ children, ...p }: React.HTMLAttributes<HTMLElement>) => <section {...p}>{children}</section>,
-    a: ({ children, ...p }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...p}>{children}</a>,
-    div: ({ children, ...p }: React.HTMLAttributes<HTMLDivElement>) => <div {...p}>{children}</div>,
-    span: ({ children, ...p }: React.HTMLAttributes<HTMLSpanElement>) => <span {...p}>{children}</span>,
-  },
-}))
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   return <LanguageProvider>{children}</LanguageProvider>
 }
 
 describe('Projects', () => {
-  it('features AgroConIA as the live project linking to its site', () => {
+  it('features AgroConIA with a link to its site and the invoice illustration', () => {
     render(<Projects />, { wrapper: Wrapper })
-    const link = screen.getByRole('link', { name: /agroconia/i })
-    expect(link).toHaveAttribute('href', 'https://www.agroconia.com.br/')
-    expect(link).toHaveAttribute('target', '_blank')
-    expect(screen.getAllByText('NO AR')).toHaveLength(1)
+    const feature = screen.getByRole('article', { name: 'AgroConIA' })
+    expect(within(feature).getByText('No ar')).toBeInTheDocument()
+    expect(within(feature).getByRole('link', { name: /abrir agroconia\.com\.br/i })).toHaveAttribute(
+      'href',
+      'https://www.agroconia.com.br/',
+    )
+    expect(within(feature).getByText('Ilustração com dados fictícios')).toBeInTheDocument()
   })
 
-  it('marks AusTV Network and AusTV Store as shut down, without links', () => {
+  it('lists every past project as a row with its status', () => {
     render(<Projects />, { wrapper: Wrapper })
-    expect(screen.getByText('AusTV Network')).toBeInTheDocument()
-    expect(screen.getByText('AusTV Store')).toBeInTheDocument()
-    expect(screen.getAllByText('ENCERRADO')).toHaveLength(2)
-    expect(screen.queryByRole('link', { name: /austv/i })).not.toBeInTheDocument()
+    const rows = within(screen.getByRole('list', { name: 'Projetos anteriores' })).getAllByRole('listitem')
+    expect(rows).toHaveLength(PAST_PROJECTS.length)
+    expect(screen.getAllByText('Encerrado')).toHaveLength(2)
+    expect(screen.getAllByText('Concluído')).toHaveLength(2)
   })
 
-  it('lists completed past projects with repository links', () => {
+  it('links completed projects to their repositories and leaves shut-down ones unlinked', () => {
     render(<Projects />, { wrapper: Wrapper })
     expect(screen.getByRole('link', { name: /intercom sul 2026/i })).toHaveAttribute(
       'href',
       'https://github.com/ZzPowerTech/Intercom-BackEnd-',
     )
-    expect(screen.getAllByText('CONCLUÍDO')).toHaveLength(2)
+    expect(screen.queryByRole('link', { name: /austv/i })).not.toBeInTheDocument()
+  })
+
+  it('no longer uses emojis as project icons', () => {
+    const { container } = render(<Projects />, { wrapper: Wrapper })
+    // Emoji blocks only: the "↗" link arrow is a plain symbol and is allowed.
+    expect(container.textContent).not.toMatch(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u)
   })
 })

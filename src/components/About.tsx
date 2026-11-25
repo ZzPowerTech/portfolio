@@ -3,29 +3,16 @@ import { useLanguage } from '../contexts/LanguageContext'
 import type { TimelineItem } from '../data/translations'
 import { SectionLabel } from './SectionLabel'
 
-const subheading: React.CSSProperties = {
-  color: 'var(--text-primary)',
-  fontSize: 13,
-  fontWeight: 700,
-  letterSpacing: 0.5,
-  marginBottom: 14,
-}
-
 function Timeline({ items }: { items: TimelineItem[] }) {
   return (
-    <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
+    <ol className="timeline">
       {items.map(item => (
-        <li
-          key={`${item.org}-${item.title}`}
-          style={{ borderLeft: '2px solid rgba(124,58,237,0.35)', paddingLeft: 14 }}
-        >
-          <p style={{ color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }}>{item.title}</p>
-          <p style={{ color: 'var(--purple-500)', fontSize: 12 }}>
-            {item.org} · <span style={{ color: 'var(--text-muted)' }}>{item.period}</span>
+        <li key={`${item.org}-${item.title}`}>
+          <p className="timeline-title">{item.title}</p>
+          <p className="timeline-meta">
+            {item.org} · <span>{item.period}</span>
           </p>
-          {item.detail && (
-            <p style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: 1.6, marginTop: 4 }}>{item.detail}</p>
-          )}
+          {item.detail && <p className="timeline-detail">{item.detail}</p>}
         </li>
       ))}
     </ol>
@@ -38,46 +25,47 @@ export function About() {
 
   return (
     <section id="about" className="section" aria-labelledby="about-title">
-      <SectionLabel path={a.label} />
-      <h2 id="about-title" className="section-title" style={{ marginBottom: 24 }}>{a.title}</h2>
+      <div className="container">
+        <SectionLabel path={a.label} />
+        <h2 id="about-title" className="section-title">{a.title}</h2>
 
-      <div className="about-grid">
-        <div>
-          {a.paragraphs.map(p => (
-            <p key={p.slice(0, 24)} style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.75, marginBottom: 16 }}>
-              {p}
-            </p>
-          ))}
+        <div className="about-layout">
+          <div>
+            <div className="about-text">
+              {a.paragraphs.map(p => <p key={p.slice(0, 32)}>{p}</p>)}
+            </div>
 
-          <h3 style={{ ...subheading, marginTop: 24 }}>{a.skillsTitle}</h3>
-          <ul style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {a.skills.map(skill => (
-              <li
-                key={skill}
-                style={{
-                  background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.18)',
-                  color: 'var(--purple-500)', padding: '3px 10px', borderRadius: 4, fontSize: 11,
-                }}
-              >
-                {skill}
-              </li>
-            ))}
-          </ul>
-        </div>
+            <h3 className="about-h3" style={{ marginTop: 36 }}>{a.skillsTitle}</h3>
+            <dl className="skill-groups" style={{ marginTop: 0 }}>
+              {a.skillGroups.map(group => (
+                <div key={group.label} className="skill-group">
+                  <dt>{group.label}</dt>
+                  <dd>
+                    <ul>
+                      {group.items.map(skill => <li key={skill} className="pill-tag">{skill}</li>)}
+                    </ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
 
-        <div>
-          <h3 style={subheading}>{a.experienceTitle}</h3>
-          <Timeline items={a.experience} />
-
-          <h3 style={subheading}>{a.educationTitle}</h3>
-          <Timeline items={a.education} />
-
-          <h3 style={subheading}>{a.achievementsTitle}</h3>
-          <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {a.achievements.map(item => (
-              <li key={item} style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: 1.6 }}>{item}</li>
-            ))}
-          </ul>
+          <div className="about-facts">
+            <div>
+              <h3 className="about-h3">{a.experienceTitle}</h3>
+              <Timeline items={a.experience} />
+            </div>
+            <div>
+              <h3 className="about-h3">{a.educationTitle}</h3>
+              <Timeline items={a.education} />
+            </div>
+            <div>
+              <h3 className="about-h3">{a.achievementsTitle}</h3>
+              <ul className="achievements">
+                {a.achievements.map(item => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>
