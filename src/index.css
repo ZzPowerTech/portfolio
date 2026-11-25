@@ -81,7 +81,7 @@ body {
 }
 
 /*
- * Dither film over the whole page: a zero-mean grey noise tile (127.5 +- 4) blended with
+ * Dither film over the whole page: a zero-mean grey noise tile (127.5 +- 2.5) blended with
  * overlay breaks 8-bit banding in every gradient by about one level. It covers the page
  * edge to edge on purpose: any layer that stops somewhere leaves a step where it stops.
  */
